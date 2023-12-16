@@ -48,8 +48,8 @@ public class Main extends Application {
             }
         }
          */
-        Button btn1 = new Button("Next");
-        btn1.setOnAction(e-> {
+        Button nextButton = new Button("Next");
+        nextButton.setOnAction(e-> {
             try {
                 Page page = Query.getPage(pageNum + 1);
                 if(page != null){
@@ -63,8 +63,8 @@ public class Main extends Application {
                 throw new RuntimeException(ex);
             }
         });
-        Button btn2 = new Button("Prev");
-        btn2.setOnAction(e-> {
+        Button prevButton = new Button("Prev");
+        prevButton.setOnAction(e-> {
             try {
                 Page page = Query.getPage(pageNum - 1);
                 if(page != null){
@@ -78,8 +78,8 @@ public class Main extends Application {
                 throw new RuntimeException(ex);
             }
         });
-        pane.setBottom(btn1);
-        pane.setTop(btn2);
+        pane.setBottom(nextButton);
+        pane.setTop(prevButton);
         Scene scene = new Scene(pane);
         textFlow.widthProperty().addListener(e -> System.out.println(textFlow.getWidth()));
         stage.setScene(scene);
