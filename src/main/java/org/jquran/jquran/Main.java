@@ -1,6 +1,7 @@
 package org.jquran.jquran;
 
 import javafx.application.Application;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
@@ -14,7 +15,7 @@ import javafx.scene.text.*;
 public class Main extends Application {
     Font customFont;
     int pageNum = 1;
-    int fontSize = 33;
+    int fontSize = 28;
     Text pageVerses;
     TextFlow textFlow;
     @Override
@@ -22,18 +23,19 @@ public class Main extends Application {
 //        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("sample.fxml"));
 //        Scene scene = new Scene(fxmlLoader.load(), 460, 950);
 
-        BorderPane pane = new BorderPane();
-        pane.setPrefWidth(550);
-        pane.setPrefHeight(1000);
+        BorderPane borderPane = new BorderPane();
+        borderPane.setPrefWidth(550);
+        borderPane.setPrefHeight(1000);
 
-        pageVerses = new Text(Query.getPage(pageNum).getVersesAsString());
+        pageVerses = new Text(Query.getPage(pageNum).getVersesByLine());
         pageVerses.setFont(Query.getFont(pageNum, fontSize));
         pageVerses.setFill(Color.WHITE);
 
         textFlow = new TextFlow(pageVerses);
         textFlow.setTextAlignment(TextAlignment.CENTER);
+        textFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         textFlow.setStyle("-fx-background-color: #222222");
-        pane.setCenter(textFlow);
+        borderPane.setCenter(textFlow);
         /*
         List<Page> pages= new ArrayList<>();
         List<Font> fonts = new ArrayList<>();
@@ -59,9 +61,9 @@ public class Main extends Application {
             previousPage();
         });
 
-        pane.setBottom(nextButton);
-        pane.setTop(prevButton);
-        Scene scene = new Scene(pane);
+        borderPane.setBottom(nextButton);
+        borderPane.setTop(prevButton);
+        Scene scene = new Scene(borderPane);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
             if (e.getCode() == KeyCode.LEFT) {
                 nextPage();
@@ -80,7 +82,7 @@ public class Main extends Application {
         try {
             Page page = Query.getPage(pageNum + 1);
             if(page != null){
-                pageVerses.setText(page.getVersesAsString());
+                pageVerses.setText(page.getVersesByLine());
                 pageVerses.setFont(Query.getFont(pageNum + 1, fontSize));
                 textFlow.getChildren().clear();
                 textFlow.getChildren().add(pageVerses);
@@ -94,7 +96,7 @@ public class Main extends Application {
         try {
             Page page = Query.getPage(pageNum - 1);
             if(page != null){
-                pageVerses.setText(page.getVersesAsString());
+                pageVerses.setText(page.getVersesByLine());
                 pageVerses.setFont(Query.getFont(pageNum - 1, fontSize));
                 textFlow.getChildren().clear();
                 textFlow.getChildren().add(pageVerses);
