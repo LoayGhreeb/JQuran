@@ -1,7 +1,8 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Application;
-import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -10,33 +11,59 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class Main extends Application {
+    ObjectMapper objectMapper = new ObjectMapper();
+    Font customFont;
+    AtomicInteger current = new AtomicInteger(0);
+
     @Override
     public void start(Stage stage) throws IOException {
 //        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("sample.fxml"));
 //        Scene scene = new Scene(fxmlLoader.load(), 460, 950);
 
-        File jsonFile = new File("assets/quran/" + 4 + ".json");
-        ObjectMapper objectMapper = new ObjectMapper();
-        Page page = objectMapper.readValue(jsonFile, Page.class);
-        List<Verse> verses = page.getVerses();
+        BorderPane pane = new BorderPane();
+//        pane.setPrefWidth(550);
+//        pane.setPrefHeight(1000);
 
-        Font customFont = Font.loadFont(new FileInputStream(new File("assets/fonts/QCFV1/QCF_P004.ttf")), 33);
+//        AtomicReference<File> jsonFile = new AtomicReference<>(new File("assets/quran/" + 3 + ".json"));
+//        AtomicReference<Page> page = new AtomicReference<>(objectMapper.readValue(jsonFile.get(), Page.class));
+
+//        Font customFont = Font.loadFont(new FileInputStream(new File("assets/fonts/QCFV1/QCF_P003.ttf")), 33);
         Text text = new Text();
-        for(Verse verse : verses)
-            text.setText(text.getText() + verse.getCode_v1() + ' ');
         text.setFont(customFont);
         text.setFill(Color.WHITE);
         TextFlow textFlow = new TextFlow(text);
-        textFlow.setTextAlignment(TextAlignment.RIGHT);
-        textFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        textFlow.setTextAlignment(TextAlignment.CENTER);
         textFlow.setStyle("-fx-background-color: #222222");
-        Scene scene = new Scene(textFlow, 460, 950);
+//        textFlow.setPrefWidth(460);
+        pane.setCenter(textFlow);
+        Button btn1 = new Button("Next");
+        btn1.setOnAction(e-> {
+            try {
+                current.addAndGet(1);
+                File jsonFile = new File("assets/quran/" + current + ".json");
+                Page page = objectMapper.readValue(jsonFile, Page.class);
+                customFont = Font.loadFont(new FileInputStream(new File("assets/fonts/QCFV1/QCF_P00" + current +".ttf")), 33);
+                text.setFont(customFont);
+                text.setText(page.getVersesAsString().toString());
+                textFlow.getChildren().clear();
+                textFlow.getChildren().add(text);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        Button btn2 = new Button("Prev");
+        pane.setBottom(btn1);
+        pane.setTop(btn2);
+        Scene scene = new Scene(pane);
+        textFlow.widthProperty().addListener(e -> System.out.println(textFlow.getWidth()));
         stage.setScene(scene);
+        stage.setWidth(460);
+//        stage.setHeight(1000);
         stage.show();
     }
 }
