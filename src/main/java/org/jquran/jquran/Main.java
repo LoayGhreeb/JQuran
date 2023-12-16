@@ -3,6 +3,8 @@ package org.jquran.jquran;
 import javafx.application.Application;
 import javafx.scene.*;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -14,7 +16,7 @@ public class Main extends Application {
     int pageNum = 1;
     int fontSize = 33;
     Text pageVerses;
-
+    TextFlow textFlow;
     @Override
     public void start(Stage stage) throws Exception {
 //        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("sample.fxml"));
@@ -28,7 +30,7 @@ public class Main extends Application {
         pageVerses.setFont(Query.getFont(pageNum, fontSize));
         pageVerses.setFill(Color.WHITE);
 
-        TextFlow textFlow = new TextFlow(pageVerses);
+        textFlow = new TextFlow(pageVerses);
         textFlow.setTextAlignment(TextAlignment.CENTER);
         textFlow.setStyle("-fx-background-color: #222222");
         pane.setCenter(textFlow);
@@ -50,40 +52,59 @@ public class Main extends Application {
          */
         Button nextButton = new Button("Next");
         nextButton.setOnAction(e-> {
-            try {
-                Page page = Query.getPage(pageNum + 1);
-                if(page != null){
-                    pageVerses.setText(page.getVersesAsString());
-                    pageVerses.setFont(Query.getFont(pageNum + 1, fontSize));
-                    textFlow.getChildren().clear();
-                    textFlow.getChildren().add(pageVerses);
-                    pageNum++;
-                }
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+            nextPage();
         });
         Button prevButton = new Button("Prev");
         prevButton.setOnAction(e-> {
-            try {
-                Page page = Query.getPage(pageNum - 1);
-                if(page != null){
-                    pageVerses.setText(page.getVersesAsString());
-                    pageVerses.setFont(Query.getFont(pageNum - 1, fontSize));
-                    textFlow.getChildren().clear();
-                    textFlow.getChildren().add(pageVerses);
-                    pageNum--;
-                }
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+            previousPage();
         });
+
         pane.setBottom(nextButton);
         pane.setTop(prevButton);
         Scene scene = new Scene(pane);
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
+            if (e.getCode() == KeyCode.LEFT) {
+                nextPage();
+            }else if (e.getCode() == KeyCode.RIGHT){
+                previousPage();
+            }
+            e.consume();
+        });
+
         textFlow.widthProperty().addListener(e -> System.out.println(textFlow.getWidth()));
         stage.setScene(scene);
         stage.setWidth(460);
         stage.show();
     }
+    public void nextPage(){
+        try {
+            Page page = Query.getPage(pageNum + 1);
+            if(page != null){
+                pageVerses.setText(page.getVersesAsString());
+                pageVerses.setFont(Query.getFont(pageNum + 1, fontSize));
+                textFlow.getChildren().clear();
+                textFlow.getChildren().add(pageVerses);
+                pageNum++;
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    public void previousPage(){
+        try {
+            Page page = Query.getPage(pageNum - 1);
+            if(page != null){
+                pageVerses.setText(page.getVersesAsString());
+                pageVerses.setFont(Query.getFont(pageNum - 1, fontSize));
+                textFlow.getChildren().clear();
+                textFlow.getChildren().add(pageVerses);
+                pageNum--;
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }
+
+
+
