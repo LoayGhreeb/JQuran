@@ -14,8 +14,10 @@ public class Page {
 
     public String getVersesAsString(){
         StringBuilder pageVerses = new StringBuilder();
-        for(Verse verse : verses)
-            pageVerses.append(verse.getCode_v1()).append(' ');
+        for(Verse verse : verses) {
+            pageVerses.append(verse.getCode_v2()).append(' ');
+            System.out.println(verse.getPage_number());
+        }
         return pageVerses.toString();
     }
     public String getVersesByLine(){
@@ -25,9 +27,10 @@ public class Page {
             lines.add(new StringBuilder());
         }
         for(Verse verse : verses){
-            for( Word word : verse.getWords()){
-               lines.get(word.getLine_number()).append(word.getCode_v1());
+            for(Word word : verse.getWords()){
+               lines.get(word.getLine_number()).append(word.getCode_v2()).append(' ');
             }
+            System.out.println(verse.getSajdah_number());
         }
         for (int i = 1; i <= 15; i++) {
             if(lines.get(i) != null) {

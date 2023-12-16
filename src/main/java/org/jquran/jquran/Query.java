@@ -17,6 +17,6 @@ public final class Query {
         String index = String.valueOf(pageNum);
         if(pageNum < 10) index = "00" + index;
         else if(pageNum < 100) index = "0" + index;
-        return Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/QCFV1/QCF_P"+ index +".ttf")), fontSize);
+        return Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/QCFV2/QCF2"+ index +".ttf")), fontSize);
     }
 }
