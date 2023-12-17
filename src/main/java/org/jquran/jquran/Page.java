@@ -28,7 +28,7 @@ public class Page {
         }
         for(Verse verse : verses){
             for(Word word : verse.getWords()){
-               lines.get(word.getLine_number()).append(word.getCode_v2()).append(' ');
+               lines.get(word.getLine_number()).append(word.getCode_v2());
             }
             System.out.println(verse.getSajdah_number());
         }

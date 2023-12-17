@@ -13,8 +13,8 @@ import javafx.scene.text.*;
 
 
 public class Main extends Application {
-    int pageNum = 285;
-    int fontSize = 28;
+    int pageNum = 177;
+    int fontSize = 26;
     Text pageVerses;
     TextFlow textFlow;
     @Override
