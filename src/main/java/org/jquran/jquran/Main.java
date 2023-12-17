@@ -1,7 +1,6 @@
 package org.jquran.jquran;
 
 import javafx.application.Application;
-import javafx.geometry.NodeOrientation;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
@@ -13,7 +12,8 @@ import javafx.scene.text.*;
 
 
 public class Main extends Application {
-    int pageNum = 177;
+    int pageNum = 1;
+    int fontVersion = 2;
     int fontSize = 26;
     Text pageVerses;
     TextFlow textFlow;
@@ -26,13 +26,12 @@ public class Main extends Application {
         borderPane.setPrefWidth(550);
         borderPane.setPrefHeight(1000);
 
-        pageVerses = new Text(Query.getPage(pageNum).getVersesByLine());
-        pageVerses.setFont(Query.getFont(pageNum, fontSize));
+        pageVerses = new Text(Query.getPage(pageNum).getVersesByLine(fontVersion));
+        pageVerses.setFont(Query.getFont(pageNum, fontSize, fontVersion));
         pageVerses.setFill(Color.WHITE);
 
         textFlow = new TextFlow(pageVerses);
         textFlow.setTextAlignment(TextAlignment.CENTER);
-        textFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         textFlow.setStyle("-fx-background-color: #222222");
         borderPane.setCenter(textFlow);
         /*
@@ -81,8 +80,8 @@ public class Main extends Application {
         try {
             Page page = Query.getPage(pageNum + 1);
             if(page != null){
-                pageVerses.setText(page.getVersesByLine());
-                pageVerses.setFont(Query.getFont(pageNum + 1, fontSize));
+                pageVerses.setText(page.getVersesByLine(fontVersion));
+                pageVerses.setFont(Query.getFont(pageNum + 1, fontSize, fontVersion));
                 textFlow.getChildren().clear();
                 textFlow.getChildren().add(pageVerses);
                 pageNum++;
@@ -95,8 +94,8 @@ public class Main extends Application {
         try {
             Page page = Query.getPage(pageNum - 1);
             if(page != null){
-                pageVerses.setText(page.getVersesByLine());
-                pageVerses.setFont(Query.getFont(pageNum - 1, fontSize));
+                pageVerses.setText(page.getVersesByLine(fontVersion));
+                pageVerses.setFont(Query.getFont(pageNum - 1, fontSize, fontVersion));
                 textFlow.getChildren().clear();
                 textFlow.getChildren().add(pageVerses);
                 pageNum--;
@@ -106,6 +105,3 @@ public class Main extends Application {
         }
     }
 }
-
-
-

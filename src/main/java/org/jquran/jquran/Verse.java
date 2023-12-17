@@ -118,6 +118,10 @@ public class Verse {
         this.code_v1 = code_v1;
     }
 
+    public String getCode(int codeVersion){
+        if(codeVersion == 1) return code_v1;
+        return code_v2;
+    }
     public String getCode_v2() {
         return code_v2;
     }

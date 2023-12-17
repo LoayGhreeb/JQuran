@@ -13,10 +13,7 @@ public final class Query {
         }
         return null;
     }
-    public static Font getFont(int pageNum, int fontSize) throws Exception {
-        String index = String.valueOf(pageNum);
-        if(pageNum < 10) index = "00" + index;
-        else if(pageNum < 100) index = "0" + index;
-        return Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/QCFV2/QCF2"+ index +".ttf")), fontSize);
+    public static Font getFont(int pageNum, int fontSize, int fontVersion) throws Exception {
+        return Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/v" + fontVersion + "/p"+ pageNum +".ttf")), fontSize);
     }
 }

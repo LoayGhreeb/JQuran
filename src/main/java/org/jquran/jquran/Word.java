@@ -97,6 +97,11 @@ public class Word {
         return code_v2;
     }
 
+    public String getCode(int codeVersion){
+        if(codeVersion == 1) return code_v1;
+        return code_v2;
+    }
+
     public void setCode_v2(String code_v2) {
         this.code_v2 = code_v2;
     }

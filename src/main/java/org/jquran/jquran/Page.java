@@ -12,15 +12,13 @@ public class Page {
         return verses;
     }
 
-    public String getVersesAsString(){
+    public String getVersesAsString(int fontVersion){
         StringBuilder pageVerses = new StringBuilder();
-        for(Verse verse : verses) {
-            pageVerses.append(verse.getCode_v2()).append(' ');
-            System.out.println(verse.getPage_number());
-        }
+        for(Verse verse : verses)
+            pageVerses.append(verse.getCode(fontVersion)).append(' ');
         return pageVerses.toString();
     }
-    public String getVersesByLine(){
+    public String getVersesByLine(int fontVersion){
         StringBuilder pageVerses = new StringBuilder();
         ArrayList<StringBuilder> lines = new ArrayList<>(17);
         for (int i = 1; i <= 16; i++) {
@@ -28,9 +26,8 @@ public class Page {
         }
         for(Verse verse : verses){
             for(Word word : verse.getWords()){
-               lines.get(word.getLine_number()).append(word.getCode_v2());
+               lines.get(word.getLine_number()).append(word.getCode(fontVersion)).append(' ');
             }
-            System.out.println(verse.getSajdah_number());
         }
         for (int i = 1; i <= 15; i++) {
             if(lines.get(i) != null) {
