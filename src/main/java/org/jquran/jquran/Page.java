@@ -12,12 +12,7 @@ public class Page {
         return verses;
     }
 
-    public String getVersesAsString(int fontVersion){
-        StringBuilder pageVerses = new StringBuilder();
-        for(Verse verse : verses)
-            pageVerses.append(verse.getCode(fontVersion)).append(' ');
-        return pageVerses.toString();
-    }
+
     public String getVersesByLine(int fontVersion){
         StringBuilder pageVerses = new StringBuilder();
         ArrayList<StringBuilder> lines = new ArrayList<>(17);
