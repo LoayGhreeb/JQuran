@@ -8,7 +8,6 @@ public class Verse {
     private int id, verse_number, hizb_number, rub_el_hizb_number, ruku_number, manzil_number, sajdah_number, chapter_id, page_number, juz_number;
 
     private String text_uthmani, text_imlaei_simple;
-    //    private String verse_key, text_uthmani_simple, text_imlaei, code_v1, code_v2;
     private List<Word> words;
 
     public int getId() {
