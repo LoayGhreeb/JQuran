@@ -12,9 +12,9 @@ import javafx.scene.text.*;
 
 
 public class Main extends Application {
-    int pageNum = 1;
-    int fontVersion = 2;
-    int fontSize = 26;
+    int pageNum = 591;
+    int fontVersion = 1;
+    int fontSize = 33;
     Text pageVerses;
     TextFlow textFlow;
     @Override
@@ -26,7 +26,7 @@ public class Main extends Application {
         borderPane.setPrefWidth(550);
         borderPane.setPrefHeight(1000);
 
-        pageVerses = new Text(Query.getPage(pageNum).getVersesByLine(fontVersion));
+        pageVerses = new Text(Query.getPage(pageNum, fontVersion).getVersesByLine(fontVersion));
         pageVerses.setFont(Query.getFont(pageNum, fontSize, fontVersion));
         pageVerses.setFill(Color.WHITE);
 
@@ -34,22 +34,8 @@ public class Main extends Application {
         textFlow.setTextAlignment(TextAlignment.CENTER);
         textFlow.setStyle("-fx-background-color: #222222");
         borderPane.setCenter(textFlow);
-        /*
-        List<Page> pages= new ArrayList<>();
-        List<Font> fonts = new ArrayList<>();
-        for(int i = 1; i <= 604; i++){
-            File jsonFile = new File("src/main/resources/org/assets/quran/" + i + ".json");
-            Page page = objectMapper.readValue(jsonFile, Page.class);
-            pages.add(page);
-            if(i < 10){
-                fonts.add(Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/QCFV1/QCF_P00"+i+".ttf")), 33));
-            }else if ( i < 100){
-                fonts.add(Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/QCFV1/QCF_P0"+i+".ttf")), 33));
-            }else{
-                fonts.add(Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/QCFV1/QCF_P"+i+".ttf")), 33));
-            }
-        }
-         */
+
+
         Button nextButton = new Button("Next");
         nextButton.setOnAction(e-> {
             nextPage();
@@ -78,7 +64,7 @@ public class Main extends Application {
     }
     public void nextPage(){
         try {
-            Page page = Query.getPage(pageNum + 1);
+            Page page = Query.getPage(pageNum + 1, fontVersion);
             if(page != null){
                 pageVerses.setText(page.getVersesByLine(fontVersion));
                 pageVerses.setFont(Query.getFont(pageNum + 1, fontSize, fontVersion));
@@ -92,7 +78,7 @@ public class Main extends Application {
     }
     public void previousPage(){
         try {
-            Page page = Query.getPage(pageNum - 1);
+            Page page = Query.getPage(pageNum - 1, fontVersion);
             if(page != null){
                 pageVerses.setText(page.getVersesByLine(fontVersion));
                 pageVerses.setFont(Query.getFont(pageNum - 1, fontSize, fontVersion));

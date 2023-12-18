@@ -1,9 +1,14 @@
 package org.jquran.jquran;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Verse {
     private int id, verse_number, hizb_number, rub_el_hizb_number, ruku_number, manzil_number, sajdah_number, chapter_id, page_number, juz_number;
-    private String verse_key, text_uthmani_simple, text_imlaei, code_v1, code_v2;
+
+    private String text_uthmani, text_imlaei_simple;
+    //    private String verse_key, text_uthmani_simple, text_imlaei, code_v1, code_v2;
     private List<Word> words;
 
     public int getId() {
@@ -86,48 +91,20 @@ public class Verse {
         this.juz_number = juz_number;
     }
 
-    public String getVerse_key() {
-        return verse_key;
+    public String getText_uthmani() {
+        return text_uthmani;
     }
 
-    public void setVerse_key(String verse_key) {
-        this.verse_key = verse_key;
+    public void setText_uthmani(String text_uthmani) {
+        this.text_uthmani = text_uthmani;
     }
 
-    public String getText_uthmani_simple() {
-        return text_uthmani_simple;
+    public String getText_imlaei_simple() {
+        return text_imlaei_simple;
     }
 
-    public void setText_uthmani_simple(String text_uthmani_simple) {
-        this.text_uthmani_simple = text_uthmani_simple;
-    }
-
-    public String getText_imlaei() {
-        return text_imlaei;
-    }
-
-    public void setText_imlaei(String text_imlaei) {
-        this.text_imlaei = text_imlaei;
-    }
-
-    public String getCode_v1() {
-        return code_v1;
-    }
-
-    public void setCode_v1(String code_v1) {
-        this.code_v1 = code_v1;
-    }
-
-    public String getCode(int codeVersion){
-        if(codeVersion == 1) return code_v1;
-        return code_v2;
-    }
-    public String getCode_v2() {
-        return code_v2;
-    }
-
-    public void setCode_v2(String code_v2) {
-        this.code_v2 = code_v2;
+    public void setText_imlaei_simple(String text_imlaei_simple) {
+        this.text_imlaei_simple = text_imlaei_simple;
     }
 
     public List<Word> getWords() {

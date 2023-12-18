@@ -1,8 +1,12 @@
 package org.jquran.jquran;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Word {
-    private int id, position, page_number, line_number;
-    private String audio_url, char_type_name, location, text_uthmani, text_imlaei, verse_key, code_v1, code_v2, text;
+    private int id, position, verse_id, page_number, line_number;
+    private String audio_url, verse_key, location, text_uthmani, code_v1, code_v2, qpc_uthmani_hafs, char_type_name, text;
+
     private Translation translation;
     private Transliteration transliteration;
     public int getId() {
@@ -19,6 +23,14 @@ public class Word {
 
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    public int getVerse_id() {
+        return verse_id;
+    }
+
+    public void setVerse_id(int verse_id) {
+        this.verse_id = verse_id;
     }
 
     public int getPage_number() {
@@ -45,12 +57,12 @@ public class Word {
         this.audio_url = audio_url;
     }
 
-    public String getChar_type_name() {
-        return char_type_name;
+    public String getVerse_key() {
+        return verse_key;
     }
 
-    public void setChar_type_name(String char_type_name) {
-        this.char_type_name = char_type_name;
+    public void setVerse_key(String verse_key) {
+        this.verse_key = verse_key;
     }
 
     public String getLocation() {
@@ -67,22 +79,6 @@ public class Word {
 
     public void setText_uthmani(String text_uthmani) {
         this.text_uthmani = text_uthmani;
-    }
-
-    public String getText_imlaei() {
-        return text_imlaei;
-    }
-
-    public void setText_imlaei(String text_imlaei) {
-        this.text_imlaei = text_imlaei;
-    }
-
-    public String getVerse_key() {
-        return verse_key;
-    }
-
-    public void setVerse_key(String verse_key) {
-        this.verse_key = verse_key;
     }
 
     public String getCode_v1() {
@@ -104,6 +100,22 @@ public class Word {
 
     public void setCode_v2(String code_v2) {
         this.code_v2 = code_v2;
+    }
+
+    public String getQpc_uthmani_hafs() {
+        return qpc_uthmani_hafs;
+    }
+
+    public void setQpc_uthmani_hafs(String qpc_uthmani_hafs) {
+        this.qpc_uthmani_hafs = qpc_uthmani_hafs;
+    }
+
+    public String getChar_type_name() {
+        return char_type_name;
+    }
+
+    public void setChar_type_name(String char_type_name) {
+        this.char_type_name = char_type_name;
     }
 
     public String getText() {
