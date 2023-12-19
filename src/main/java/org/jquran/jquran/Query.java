@@ -3,6 +3,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.scene.text.Font;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public final class Query {
     public static Page getPage(int pageNum, int fontVersion) throws Exception {
@@ -19,5 +20,10 @@ public final class Query {
     }
     public static Font getFont(int pageNum, int fontSize, int fontVersion) throws Exception {
         return Font.loadFont(new FileInputStream(new File("src/main/resources/org/assets/fonts/v" + fontVersion + "/p"+ pageNum +".ttf")), fontSize);
+    }
+    public static QuranChapters getSurahList() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        File jsonFile = new File("src/main/resources/org/assets/Chapters.json");
+        return objectMapper.readValue(jsonFile, QuranChapters.class);
     }
 }

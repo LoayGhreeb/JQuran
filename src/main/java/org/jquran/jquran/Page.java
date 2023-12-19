@@ -19,10 +19,16 @@ public class Page {
         for (int i = 1; i <= 16; i++) {
             lines.add(new StringBuilder());
         }
+        Boolean f = true;
         for(Verse verse : verses){
             for(Word word : verse.getWords()){
-               lines.get(word.getLine_number()).append(word.getCode(fontVersion)).append(' ');
+                lines.get(word.getLine_number()).append(word.getCode(fontVersion));
+                if(f && fontVersion == 2){
+                    lines.get(word.getLine_number()).append(" ");
+                    f= false;
+                }
             }
+
         }
         for (int i = 1; i <= 15; i++) {
             if(lines.get(i) != null) {
