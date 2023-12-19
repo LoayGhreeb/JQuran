@@ -13,31 +13,21 @@ public class Page {
     }
 
 
-    public String getVersesByLine(int fontVersion){
-        StringBuilder pageVerses = new StringBuilder();
-        ArrayList<StringBuilder> lines = new ArrayList<>(17);
-        for (int i = 1; i <= 16; i++) {
+    public String getVersesByLine(int fontVersion) {
+        List<StringBuilder> lines = new ArrayList<>();
+        for(int i = 0; i < 16; i++)
             lines.add(new StringBuilder());
-        }
-        Boolean f = true;
-        for(Verse verse : verses){
-            for(Word word : verse.getWords()){
-                lines.get(word.getLine_number()).append(word.getCode(fontVersion));
-                if(f && fontVersion == 2){
-                    lines.get(word.getLine_number()).append(" ");
-                    f= false;
-                }
-            }
 
-        }
-        for (int i = 1; i <= 15; i++) {
-            if(lines.get(i) != null) {
-                pageVerses.append(lines.get(i));
-                pageVerses.append("\n");
+        for (Verse verse : verses) {
+            for (Word word : verse.getWords()) {
+                int lineNumber = word.getLine_number();
+                lines.get(lineNumber).append(word.getCode(fontVersion)).append(' ');
             }
         }
-        return pageVerses.toString();
+
+        return String.join("\n", lines.subList(1, 16));
     }
+
     public void setVerses(List<Verse> verses) {
         this.verses = verses;
     }

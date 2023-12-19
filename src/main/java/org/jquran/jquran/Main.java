@@ -16,21 +16,20 @@ import javafx.util.Callback;
 import java.io.IOException;
 
 
+
 public class Main extends Application {
-    int pageNum = 270;
-    int fontVersion = 2;
-    int fontSize = 28;
+    int pageNum = 27;
+    int fontVersion = 1;
+    int fontSize = 33;
     Text pageVerses;
     TextFlow textFlow;
     VBox sidebar;
     ListView<CustomThing> listView;
 //    ScrollPane sideBarScroller;
 
+
     @Override
     public void start(Stage stage) throws Exception {
-//        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("sample.fxml"));
-//        Scene scene = new Scene(fxmlLoader.load(), 460, 950);
-
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefWidth(550);
         borderPane.setPrefHeight(1000);
@@ -49,7 +48,7 @@ public class Main extends Application {
 //        borderPane.setRight(sideBarScroller);
 
         pageVerses = new Text(Query.getPage(pageNum, fontVersion).getVersesByLine(fontVersion));
-        pageVerses.setFont(Query.getFont(pageNum, fontSize, fontVersion));
+        pageVerses.setFont(Query.getFont(pageNum, fontVersion, fontSize));
         pageVerses.setFill(Color.WHITE);
 
         textFlow = new TextFlow(pageVerses);
@@ -57,40 +56,25 @@ public class Main extends Application {
         textFlow.setStyle("-fx-background-color: #222222");
         borderPane.setCenter(textFlow);
 
-
-        Button nextButton = new Button("Next");
-        nextButton.setOnAction(e -> {
-            nextPage();
-        });
-        Button prevButton = new Button("Prev");
-        prevButton.setOnAction(e -> {
-            previousPage();
-        });
-        Button apendix = new Button("الفهرس");
-        apendix.setOnAction(e -> {
+        Button appendix = new Button("الفهرس");
+        appendix.setOnAction(e -> {
             showSideBar();
         });
 
-        borderPane.setBottom(nextButton);
-        borderPane.setTop(prevButton);
-
 //        borderPane.setRight(sideBarScroller);
         borderPane.setRight(listView);
-
-        borderPane.setLeft(apendix);
+        borderPane.setLeft(appendix);
         Scene scene = new Scene(borderPane);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
             if (e.getCode() == KeyCode.LEFT) {
-                nextPage();
+                setPage(pageNum + 1);
             } else if (e.getCode() == KeyCode.RIGHT) {
-                previousPage();
+                setPage(pageNum - 1);
             }
             e.consume();
         });
-
-        textFlow.widthProperty().addListener(e -> System.out.println(textFlow.getWidth()));
         stage.setScene(scene);
-        stage.setWidth(460);
+        stage.setWidth(800);
         stage.show();
     }
 
@@ -144,38 +128,27 @@ public class Main extends Application {
 //        sidebar.getChildren().add( new Label(quranChapters.getChapters().get(1).getName_arabic()));
     }
 
-    public void nextPage() {
+    public void setPage(int newPageNum) {
         try {
-            Page page = Query.getPage(pageNum + 1, fontVersion);
+            Page page = Query.getPage(newPageNum, fontVersion);
             if (page != null) {
                 pageVerses.setText(page.getVersesByLine(fontVersion));
-                pageVerses.setFont(Query.getFont(pageNum + 1, fontSize, fontVersion));
+                pageVerses.setFont(Query.getFont(newPageNum, fontVersion, fontSize));
                 textFlow.getChildren().clear();
                 textFlow.getChildren().add(pageVerses);
-                pageNum++;
+                pageNum = newPageNum;
             }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public void previousPage() {
-        try {
-            Page page = Query.getPage(pageNum - 1, fontVersion);
-            if (page != null) {
-                pageVerses.setText(page.getVersesByLine(fontVersion));
-                pageVerses.setFont(Query.getFont(pageNum - 1, fontSize, fontVersion));
-                textFlow.getChildren().clear();
-                textFlow.getChildren().add(pageVerses);
-                pageNum--;
-            }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     public void showSideBar() {
         listView.setVisible(!listView.isVisible());
+    }
+    
+    public static void main(String[] args) {
+        launch();
     }
 }
 
