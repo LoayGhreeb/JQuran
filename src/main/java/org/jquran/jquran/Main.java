@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class Main extends Application {
     int pageNum = 1;
     int fontVersion = 1;
-    int fontSize = 30;
+    int fontSize = 25;
     TextFlow textFlow;
     HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
     ListView<CustomThing> listView;
@@ -107,7 +107,7 @@ public class Main extends Application {
 //        sidebar.getChildren().add( new Label(quranChapters.getChapters().get(1).getName_arabic()));
     }
 
-    public void setCurrentPage(int newPageNum) {
+    public void setCurrentPage(int newPageNum){
         try {
             Page page = Query.getPage(newPageNum, fontVersion);
             if (page != null) {

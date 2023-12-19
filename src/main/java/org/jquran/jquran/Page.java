@@ -35,14 +35,19 @@ public class Page {
                 int firstVerseLine = verse.getWords().get(0).getLine_number();
                 if(quranChapters.getChapters().get(verse.getChapter_id()-1).isBismillah_pre()){
 
-                    fullPage.get(firstVerseLine - 2).setText(surahName+"\n");
+                    fullPage.get(firstVerseLine - 2).setText("سورة "+surahName+"\n");
                     fullPage.get(firstVerseLine - 2).setFont(Query.getsurahNames(fontSize));
                     String Basmala = "3 2 1";
-                    fullPage.get(firstVerseLine - 1).setText(Basmala+"\n");
-                    fullPage.get(firstVerseLine - 1).setFont(Query.getBSMLV1(fontSize));
-
+                    if(surahId == 2){
+                        Basmala = "ﭑﭒﭓﭔ";
+                        fullPage.get(firstVerseLine - 1).setText(Basmala + "\n");
+                        fullPage.get(firstVerseLine - 1).setFont(Query.getFont(1,1,fontSize));
+                    }else {
+                        fullPage.get(firstVerseLine - 1).setText(Basmala + "\n");
+                        fullPage.get(firstVerseLine - 1).setFont(Query.getBSMLV1(fontSize));
+                    }
                 }else{
-                    fullPage.get(firstVerseLine - 1).setText(surahName+"\n");
+                    fullPage.get(firstVerseLine - 1).setText("سورة "+surahName+"\n");
                     fullPage.get(firstVerseLine - 1).setFont(Query.getsurahNames(fontSize));
                 }
             }
@@ -55,7 +60,7 @@ public class Page {
         if(lines.get(15).toString().equals("")){
             int surahId =  quranChapters.getChapters().get(verses.get(verses.size()-1).getChapter_id()).getId();
             String surahName = getSurahArabic(surahId);
-            fullPage.get(15).setText(surahName+"\n");
+            fullPage.get(15).setText("سورة "+surahName+"\n");
             fullPage.get(15).setFont(Query.getsurahNames(fontSize));
         }
         for (int i = 1; i <= 15; i++) {
