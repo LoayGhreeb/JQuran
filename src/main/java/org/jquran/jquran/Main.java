@@ -17,15 +17,16 @@ import org.controlsfx.control.HiddenSidesPane;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Main extends Application {
-    int pageNum = 27;
+    int pageNum = 1;
     int fontVersion = 1;
-    int fontSize = 33;
-    Text pageVerses;
+    int fontSize = 30;
     TextFlow textFlow;
     HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
     ListView<CustomThing> listView;
+    QuranChapters quranChapters = new QuranChapters();
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -35,16 +36,13 @@ public class Main extends Application {
 
         showSurahList();
 
-        pageVerses = new Text(Query.getPage(pageNum, fontVersion).getLines(fontVersion));
-        pageVerses.setFont(Query.getFont(pageNum, fontVersion, fontSize));
-        pageVerses.setFill(Color.WHITE);
-
-        textFlow = new TextFlow(pageVerses);
+        quranChapters = Query.getChapters();
+        textFlow = new TextFlow();
         textFlow.setTextAlignment(TextAlignment.CENTER);
         textFlow.setStyle("-fx-background-color: #222222");
+        setCurrentPage(pageNum);
 
         Button appendix = new Button("الفهرس");
-
 
         hiddenSidesPane.setContent(textFlow);
         hiddenSidesPane.setRight(listView);
@@ -113,10 +111,16 @@ public class Main extends Application {
         try {
             Page page = Query.getPage(newPageNum, fontVersion);
             if (page != null) {
-                pageVerses.setText(page.getLines(fontVersion));
-                pageVerses.setFont(Query.getFont(newPageNum, fontVersion, fontSize));
+
+                ArrayList<Text>fullPages = page.getLines(fontVersion, quranChapters, fontSize, newPageNum);
+
                 textFlow.getChildren().clear();
-                textFlow.getChildren().add(pageVerses);
+
+                for (int i = 1; i < 16; i++) {
+                    fullPages.get(i).setFill(Color.WHITE);
+                    textFlow.getChildren().addAll(fullPages.get(i));
+                }
+
                 pageNum = newPageNum;
             }
         } catch (Exception e) {

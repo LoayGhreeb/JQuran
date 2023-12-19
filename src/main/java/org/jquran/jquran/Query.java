@@ -20,6 +20,9 @@ public final class Query {
     public static Font getBSMLV2(int fontSize) throws Exception {
         return Font.loadFont(new FileInputStream("src/main/resources/org/assets/fonts/v2/QCF2BSML.ttf"), fontSize);
     }
+    public static Font getsurahNames(int fontSize) throws Exception {
+        return Font.loadFont(new FileInputStream("src/main/resources/org/assets/fonts/arbfonts_Qurraan_sora.otf"), fontSize);
+    }
     public static QuranChapters getChapters() throws IOException {
         return objectMapper.readValue(new File("src/main/resources/org/assets/quran/chapters.json"), QuranChapters.class);
     }
