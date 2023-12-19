@@ -14,7 +14,7 @@ public final class Query {
         if(pageNum <= 0 || pageNum > 604 || fontVersion < 1 || fontVersion > 2) return null;
         return Font.loadFont(new FileInputStream("src/main/resources/org/assets/fonts/v" + fontVersion + "/p"+ pageNum +".ttf"), fontSize);
     }
-    public static QuranChapters getSurahList() throws IOException {
+    public static QuranChapters getChapters() throws IOException {
         return objectMapper.readValue(new File("src/main/resources/org/assets/quran/chapters.json"), QuranChapters.class);
     }
 }

@@ -1,8 +1,7 @@
 package org.jquran.jquran;
 
 public class TranslatedName {
-    public String language_name;
-    public String name;
+    private String language_name, name;
 
     public String getLanguage_name() {
         return language_name;

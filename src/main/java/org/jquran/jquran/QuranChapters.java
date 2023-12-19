@@ -1,8 +1,8 @@
 package org.jquran.jquran;
 import java.util.ArrayList;
 
-public class QuranChapters{
-    public ArrayList<Chapter> chapters;
+public class QuranChapters {
+    private ArrayList<Chapter> chapters;
 
     public ArrayList<Chapter> getChapters() {
         return chapters;
@@ -12,4 +12,3 @@ public class QuranChapters{
         this.chapters = chapters;
     }
 }
-

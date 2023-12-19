@@ -81,25 +81,17 @@ public class Word {
         this.text_uthmani = text_uthmani;
     }
 
-    public String getCode_v1() {
-        return code_v1;
-    }
-
     public void setCode_v1(String code_v1) {
         this.code_v1 = code_v1;
     }
 
-    public String getCode_v2() {
-        return code_v2;
+    public void setCode_v2(String code_v2) {
+        this.code_v2 = code_v2;
     }
 
     public String getCode(int codeVersion){
         if(codeVersion == 1) return code_v1;
         return code_v2;
-    }
-
-    public void setCode_v2(String code_v2) {
-        this.code_v2 = code_v2;
     }
 
     public String getQpc_uthmani_hafs() {

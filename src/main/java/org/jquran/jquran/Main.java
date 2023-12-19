@@ -3,21 +3,20 @@ package org.jquran.jquran;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyEvent;
+import javafx.geometry.Side;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.util.Callback;
+import org.controlsfx.control.HiddenSidesPane;
+
 
 import java.io.IOException;
-
-
 
 public class Main extends Application {
     int pageNum = 27;
@@ -26,15 +25,16 @@ public class Main extends Application {
     Text pageVerses;
     TextFlow textFlow;
     VBox sidebar;
+    HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
     ListView<CustomThing> listView;
 //    ScrollPane sideBarScroller;
-
 
     @Override
     public void start(Stage stage) throws Exception {
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefWidth(550);
         borderPane.setPrefHeight(1000);
+//        ListSelectionView<String> view = new ListSelectionView<>();
 
 //        sidebar = new VBox();
 //        sidebar.setStyle("-fx-background-color: #d3d3d3;");
@@ -49,31 +49,38 @@ public class Main extends Application {
 
 //        borderPane.setRight(sideBarScroller);
 
-        pageVerses = new Text(Query.getPage(pageNum, fontVersion).getVersesByLine(fontVersion));
+        pageVerses = new Text(Query.getPage(pageNum, fontVersion).getLines(fontVersion));
         pageVerses.setFont(Query.getFont(pageNum, fontVersion, fontSize));
         pageVerses.setFill(Color.WHITE);
 
         textFlow = new TextFlow(pageVerses);
         textFlow.setTextAlignment(TextAlignment.CENTER);
         textFlow.setStyle("-fx-background-color: #222222");
-        borderPane.setCenter(textFlow);
 
         Button appendix = new Button("الفهرس");
-        appendix.setOnAction(e -> {
-            showSideBar();
-        });
+
+
+        hiddenSidesPane.setContent(textFlow);
+        hiddenSidesPane.setRight(listView);
+
 
 //        borderPane.setRight(sideBarScroller);
         borderPane.setRight(listView);
-        listView.setOnMouseClicked(event -> setPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
+        listView.setOnMouseClicked(event -> setCurrentPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
 
+        borderPane.setRight(textFlow);
         borderPane.setLeft(appendix);
+        borderPane.setCenter(hiddenSidesPane);
+
+        appendix.setOnAction(e -> {
+            showSideBar();
+        });
         Scene scene = new Scene(borderPane);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
             if (e.getCode() == KeyCode.LEFT) {
-                setPage(pageNum + 1);
+                setCurrentPage(pageNum + 1);
             } else if (e.getCode() == KeyCode.RIGHT) {
-                setPage(pageNum - 1);
+                setCurrentPage(pageNum - 1);
             }
             e.consume();
         });
@@ -83,7 +90,7 @@ public class Main extends Application {
     }
 
     private void showSurahList() throws IOException {
-        QuranChapters quranChapters = Query.getSurahList();
+        QuranChapters quranChapters = Query.getChapters();
 
         ObservableList<CustomThing> data = FXCollections.observableArrayList();
 //        data.addAll(new CustomListView.CustomThing("Cheese", 123), new CustomListView.CustomThing("Horse", 456), new CustomListView.CustomThing("Jam", 789));
@@ -132,11 +139,11 @@ public class Main extends Application {
 //        sidebar.getChildren().add( new Label(quranChapters.getChapters().get(1).getName_arabic()));
     }
 
-    public void setPage(int newPageNum) {
+    public void setCurrentPage(int newPageNum) {
         try {
             Page page = Query.getPage(newPageNum, fontVersion);
             if (page != null) {
-                pageVerses.setText(page.getVersesByLine(fontVersion));
+                pageVerses.setText(page.getLines(fontVersion));
                 pageVerses.setFont(Query.getFont(newPageNum, fontVersion, fontSize));
                 textFlow.getChildren().clear();
                 textFlow.getChildren().add(pageVerses);
@@ -148,7 +155,9 @@ public class Main extends Application {
     }
 
     public void showSideBar() {
-        listView.setVisible(!listView.isVisible());
+        if(hiddenSidesPane.getPinnedSide() == null)
+            hiddenSidesPane.setPinnedSide(Side.RIGHT);
+        else hiddenSidesPane.setPinnedSide(null);
     }
     
     public static void main(String[] args) {

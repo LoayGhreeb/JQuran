@@ -2,6 +2,7 @@ module org.jquran.jquran {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.fasterxml.jackson.databind;
+    requires org.controlsfx.controls;
 
 
     opens org.jquran.jquran to javafx.fxml;
