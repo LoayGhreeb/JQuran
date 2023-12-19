@@ -24,30 +24,16 @@ public class Main extends Application {
     int fontSize = 33;
     Text pageVerses;
     TextFlow textFlow;
-    VBox sidebar;
     HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
     ListView<CustomThing> listView;
-//    ScrollPane sideBarScroller;
 
     @Override
     public void start(Stage stage) throws Exception {
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefWidth(550);
         borderPane.setPrefHeight(1000);
-//        ListSelectionView<String> view = new ListSelectionView<>();
 
-//        sidebar = new VBox();
-//        sidebar.setStyle("-fx-background-color: #d3d3d3;");
-//        sidebar.setVisible(true);
-//        sidebar.setFillWidth(true);
-//        sidebar.setPrefWidth(200);
         showSurahList();
-//        sideBar = new SideBarView(borderPane);
-
-//        sideBarScroller = new ScrollPane(sidebar);
-//        sideBarScroller.setFitToWidth(true);
-
-//        borderPane.setRight(sideBarScroller);
 
         pageVerses = new Text(Query.getPage(pageNum, fontVersion).getLines(fontVersion));
         pageVerses.setFont(Query.getFont(pageNum, fontVersion, fontSize));
@@ -64,7 +50,6 @@ public class Main extends Application {
         hiddenSidesPane.setRight(listView);
 
 
-//        borderPane.setRight(sideBarScroller);
         borderPane.setRight(listView);
         listView.setOnMouseClicked(event -> setCurrentPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
 
@@ -93,20 +78,11 @@ public class Main extends Application {
         QuranChapters quranChapters = Query.getChapters();
 
         ObservableList<CustomThing> data = FXCollections.observableArrayList();
-//        data.addAll(new CustomListView.CustomThing("Cheese", 123), new CustomListView.CustomThing("Horse", 456), new CustomListView.CustomThing("Jam", 789));
-//        final ListView<CustomListView.CustomThing> listView = new ListView<CustomListView.CustomThing>(data);
         for (int i = 0; i < quranChapters.getChapters().size(); i++) {
-
             /// surah name
-//            Label surahName = n ew Label(quranChapters.getChapters().get(i).getName_arabic());
             String surahName = quranChapters.getChapters().get(i).getName_arabic();
-
-//            Font font = Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, 18);
-//            surahName.setFont(font);
             /// surah info
-//            Label surahInfo = new Label();
             int surahNumber = quranChapters.getChapters().get(i).getId();
-
             int verseCount = quranChapters.getChapters().get(i).getVerses_count();
             String place = quranChapters.getChapters().get(i).getRevelation_place();
             if( place.equals("makkah")){
@@ -116,15 +92,9 @@ public class Main extends Application {
             }
             int firstPage = quranChapters.getChapters().get(i).getPages().get(0);
             String surahInfo = "رقمها"+"_"+ surahNumber + "_" + "آياتها"+ "_" + verseCount + "_" + place;
-//            Font font2 = Font.font("Arial", FontWeight.LIGHT, 10);
-
 
             data.add(new CustomThing(surahName, surahInfo, firstPage));
             listView = new ListView<CustomThing>(data);
-
-//            surah.setFont(font);
-//            sidebar.getChildren().add(surah);
-//            surah.setStyle("-fx-pref-width: 100%");
 
         }
         /** https://stackoverflow.com/questions/27438629/listview-with-custom-content-in-javafx */
