@@ -3,10 +3,12 @@ package org.jquran.jquran;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -63,6 +65,8 @@ public class Main extends Application {
 
 //        borderPane.setRight(sideBarScroller);
         borderPane.setRight(listView);
+        listView.setOnMouseClicked(event -> setPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
+
         borderPane.setLeft(appendix);
         Scene scene = new Scene(borderPane);
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
@@ -108,7 +112,7 @@ public class Main extends Application {
 //            Font font2 = Font.font("Arial", FontWeight.LIGHT, 10);
 
 
-            data.add(new CustomThing(surahName, surahInfo));
+            data.add(new CustomThing(surahName, surahInfo, firstPage));
             listView = new ListView<CustomThing>(data);
 
 //            surah.setFont(font);
