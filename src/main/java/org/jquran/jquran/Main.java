@@ -14,7 +14,7 @@ import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.util.Callback;
 import org.controlsfx.control.HiddenSidesPane;
-
+import org.jquran.DownloadAudio;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,18 +43,28 @@ public class Main extends Application {
         setCurrentPage(pageNum);
 
         Button appendix = new Button("الفهرس");
-
+        Button reciter = new Button("القارئ");
+        VBox btnBox = new VBox(appendix, reciter);
         hiddenSidesPane.setContent(textFlow);
         hiddenSidesPane.setRight(listView);
 
-
         borderPane.setRight(listView);
-        listView.setOnMouseClicked(event -> setCurrentPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
+        listView.setOnMouseClicked(
+                event -> setCurrentPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
 
         borderPane.setRight(textFlow);
-        borderPane.setLeft(appendix);
+        borderPane.setLeft(btnBox);
         borderPane.setCenter(hiddenSidesPane);
 
+        reciter.setOnAction(e -> {
+
+            try {
+                DownloadAudio.display();
+            } catch (IOException e1) {
+
+                e1.printStackTrace();
+            }
+        });
         appendix.setOnAction(e -> {
             showSideBar();
         });
@@ -83,19 +93,21 @@ public class Main extends Application {
             int surahNumber = quranChapters.getChapters().get(i).getId();
             int verseCount = quranChapters.getChapters().get(i).getVerses_count();
             String place = quranChapters.getChapters().get(i).getRevelation_place();
-            if( place.equals("makkah")){
+            if (place.equals("makkah")) {
                 place = "مكيّة";
-            }else{
+            } else {
                 place = "مدنيّة";
             }
             int firstPage = quranChapters.getChapters().get(i).getPages().get(0);
-            String surahInfo = "رقمها"+"_"+ surahNumber + "_" + "آياتها"+ "_" + verseCount + "_" + place;
+            String surahInfo = "رقمها" + "_" + surahNumber + "_" + "آياتها" + "_" + verseCount + "_" + place;
 
             data.add(new CustomThing(surahName, surahInfo, firstPage));
             listView = new ListView<CustomThing>(data);
 
         }
-        /** https://stackoverflow.com/questions/27438629/listview-with-custom-content-in-javafx */
+        /**
+         * https://stackoverflow.com/questions/27438629/listview-with-custom-content-in-javafx
+         */
         listView.setCellFactory(new Callback<ListView<CustomThing>, ListCell<CustomThing>>() {
             @Override
             public ListCell<CustomThing> call(ListView<CustomThing> listView) {
@@ -103,16 +115,17 @@ public class Main extends Application {
             }
         });
 
-//        listView.setCellFactory(listView -> new CustomListCell());
-//        sidebar.getChildren().add( new Label(quranChapters.getChapters().get(1).getName_arabic()));
+        // listView.setCellFactory(listView -> new CustomListCell());
+        // sidebar.getChildren().add( new
+        // Label(quranChapters.getChapters().get(1).getName_arabic()));
     }
 
-    public void setCurrentPage(int newPageNum){
+    public void setCurrentPage(int newPageNum) {
         try {
             Page page = Query.getPage(newPageNum, fontVersion);
             if (page != null) {
 
-                ArrayList<Text>fullPages = page.getLines(fontVersion, quranChapters, fontSize, newPageNum);
+                ArrayList<Text> fullPages = page.getLines(fontVersion, quranChapters, fontSize, newPageNum);
 
                 textFlow.getChildren().clear();
 
@@ -129,18 +142,13 @@ public class Main extends Application {
     }
 
     public void showSideBar() {
-        if(hiddenSidesPane.getPinnedSide() == null)
+        if (hiddenSidesPane.getPinnedSide() == null)
             hiddenSidesPane.setPinnedSide(Side.RIGHT);
-        else hiddenSidesPane.setPinnedSide(null);
+        else
+            hiddenSidesPane.setPinnedSide(null);
     }
-    
+
     public static void main(String[] args) {
         launch();
     }
 }
-
-
-
-
-
-
