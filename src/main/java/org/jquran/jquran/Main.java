@@ -3,11 +3,19 @@ package org.jquran.jquran;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
 import javafx.geometry.Side;
+import javafx.scene.control.Button;
+import javafx.scene.effect.BlendMode;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -15,14 +23,23 @@ import javafx.scene.text.*;
 import javafx.util.Callback;
 import org.controlsfx.control.HiddenSidesPane;
 import org.jquran.DownloadAudio;
+import org.controlsfx.glyphfont.*;
+import javafx.geometry.Insets;
 
+import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Main extends Application {
     int pageNum = 1;
     int fontVersion = 1;
-    int fontSize = 25;
+    int fontSize = 28;
     TextFlow textFlow;
     HiddenSidesPane hiddenSidesPane = new HiddenSidesPane();
     ListView<CustomThing> listView;
@@ -131,6 +148,23 @@ public class Main extends Application {
 
                 for (int i = 1; i < 16; i++) {
                     fullPages.get(i).setFill(Color.WHITE);
+                    if(fullPages.get(i).getFont().equals(Query.getsurahNames(fontSize) )){
+                        Image image = new Image("sura_box.png");
+                        ImageView imageView = new ImageView(image);
+                        imageView.setFitWidth(430);
+                        imageView.setPreserveRatio(true);
+                        ColorAdjust blackout = new ColorAdjust();
+                        blackout.setBrightness(1.0);
+                        imageView.setEffect(blackout);
+                        imageView.setCache(true);
+                        imageView.setCacheHint(CacheHint.SPEED);
+                        Text t = fullPages.get(i);
+                        VBox vb = new VBox(imageView, t);
+                        vb.setAlignment(Pos.CENTER);
+                        vb.setMargin(imageView, new Insets(0, 0, -48, 0));
+                        textFlow.getChildren().addAll(vb, new Text("\n"));
+                        continue;
+                    }
                     textFlow.getChildren().addAll(fullPages.get(i));
                 }
 
