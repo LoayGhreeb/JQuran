@@ -37,7 +37,8 @@ public class Page {
 
                     fullPage.get(firstVerseLine - 2).setText("سورة "+surahName+"\n");
                     fullPage.get(firstVerseLine - 2).setFont(Query.getsurahNames(fontSize));
-                    String Basmala = "3 2 1";
+//                    String Basmala = "321";
+                    String Basmala = "ó";
                     if(surahId == 2){
                         Basmala = "ﭑﭒﭓﭔ";
                         fullPage.get(firstVerseLine - 1).setText(Basmala + "\n");
