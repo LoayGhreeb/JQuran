@@ -19,7 +19,7 @@ import org.controlsfx.control.HiddenSidesPane;
 import java.io.IOException;
 
 public class Main extends Application {
-    int pageNum = 27;
+    int pageNum = 1;
     int fontVersion = 1;
     int fontSize = 33;
     Text pageVerses;
@@ -35,7 +35,7 @@ public class Main extends Application {
 
         showSurahList();
 
-        pageVerses = new Text(Query.getPage(pageNum, fontVersion).getLines(fontVersion));
+        pageVerses = new Text(Query.loadPage(pageNum, fontVersion).getLines(fontVersion));
         pageVerses.setFont(Query.getFont(pageNum, fontVersion, fontSize));
         pageVerses.setFill(Color.WHITE);
 
@@ -75,7 +75,7 @@ public class Main extends Application {
     }
 
     private void showSurahList() throws IOException {
-        QuranChapters quranChapters = Query.getChapters();
+        QuranChapters quranChapters = Query.loadChapters();
 
         ObservableList<CustomThing> data = FXCollections.observableArrayList();
         for (int i = 0; i < quranChapters.getChapters().size(); i++) {
@@ -90,7 +90,7 @@ public class Main extends Application {
             }else{
                 place = "مدنيّة";
             }
-            int firstPage = quranChapters.getChapters().get(i).getPages().get(0);
+            int firstPage = quranChapters.getChapters().get(i).getPages().getFirst();
             String surahInfo = "رقمها"+"_"+ surahNumber + "_" + "آياتها"+ "_" + verseCount + "_" + place;
 
             data.add(new CustomThing(surahName, surahInfo, firstPage));
@@ -106,12 +106,12 @@ public class Main extends Application {
         });
 
 //        listView.setCellFactory(listView -> new CustomListCell());
-//        sidebar.getChildren().add( new Label(quranChapters.getChapters().get(1).getName_arabic()));
+//        sidebar.getChildren().add( new Label(quranChapters.loadChapters().get(1).getName_arabic()));
     }
 
     public void setCurrentPage(int newPageNum) {
         try {
-            Page page = Query.getPage(newPageNum, fontVersion);
+            Page page = Query.loadPage(newPageNum, fontVersion);
             if (page != null) {
                 pageVerses.setText(page.getLines(fontVersion));
                 pageVerses.setFont(Query.getFont(newPageNum, fontVersion, fontSize));

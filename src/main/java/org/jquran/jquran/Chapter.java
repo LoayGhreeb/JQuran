@@ -88,4 +88,9 @@ public class Chapter {
     public void setTranslated_name(TranslatedName translated_name) {
         this.translated_name = translated_name;
     }
+    @Override
+    public String toString() {
+        return getId() + ". " + getName_arabic();
+//        return "رقمها" + "_" + surahNumber + "_" + "آياتها"+ "_" + verseCount + "_" + place;
+    }
 }

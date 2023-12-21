@@ -6,11 +6,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-import org.controlsfx.control.HiddenSidesPane;
 
 public class MainFrame extends Application {
     private int pageNum = 1, fontVersion = 1, fontSize = 32;
@@ -45,7 +43,7 @@ public class MainFrame extends Application {
 
     public void setCurrentPage(int newPageNum) {
         try {
-            Page newPage = Query.getPage(newPageNum, fontVersion);
+            Page newPage = Query.loadPage(newPageNum, fontVersion);
             if (newPage != null) {
                 pageLines.setText(newPage.getLines(fontVersion));
                 pageLines.setFont(Query.getFont(newPageNum, fontVersion, fontSize));
