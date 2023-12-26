@@ -69,6 +69,7 @@ public class Main extends Application {
             }
             e.consume();
         });
+        scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setWidth(800);
         stage.show();
@@ -105,7 +106,7 @@ public class Main extends Application {
             }
         });
 
-//        listView.setCellFactory(listView -> new CustomListCell());
+//        chaptersListView.setCellFactory(chaptersListView -> new CustomListCell());
 //        sidebar.getChildren().add( new Label(quranChapters.loadChapters().get(1).getName_arabic()));
     }
 

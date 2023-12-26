@@ -1,109 +1,75 @@
 package org.jquran.jquran;
 
-import atlantafx.base.theme.NordLight;
-import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.CupertinoDark;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
-import javafx.geometry.Side;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.controlsfx.control.HiddenSidesPane;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class MainWindow extends Application {
-    VBox root;
-    MenuBar menuBar;
-    SplitPane splitPane;
-    HiddenSidesPane hiddenSidesPane;
-    ListView<Chapter> listView;
-    //Text font color : #e7e9ea
-    //Background color: #1f2125
-    // secondary color : #44a3aa
-
+    private static final double PERCENTAGE = 0.9;
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
+        // Set the stage size
+        double screenWidth = Screen.getPrimary().getBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getBounds().getHeight();
+        primaryStage.setWidth(screenWidth * PERCENTAGE);
+        primaryStage.setHeight(screenHeight * PERCENTAGE);
+
         // The root Pane
-        Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
-        root = new VBox();
+        BorderPane root = new BorderPane();
         root.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
-
-        root.setSpacing(10);
-        root.setPadding(new Insets(10, 10, 10, 10));
-
         // Menubar
-        menuBar = new MenuBar();
-        Button aa = new Button("الفهرس");
-        Menu appendix = new Menu();
-        appendix.setGraphic(aa);
-        menuBar.getMenus().addAll(appendix, new Menu("ملف"), new Menu("عرض"));
-        root.getChildren().add(menuBar);
-        aa.setOnAction(event -> showSideBar());
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().addAll(new Menu("ملف"), new Menu("عرض"), new Menu("بحث"));
+        root.setTop(menuBar);
 
-        // chapters pane to combine search field with listview into one component
+        /* create Accordion (appendix) contains the chaptersPane &
+         * chaptersPane used to combine search field with listview of chapters name into one component  */
         VBox chaptersPane = new VBox();
         chaptersPane.setSpacing(10);
-        chaptersPane.setPadding(new Insets(10, 10, 10, 10));
+        Accordion appendix = new Accordion(new TitledPane("الفهرس", chaptersPane));
+        appendix.setExpandedPane(appendix.getPanes().getFirst());
+        StackPane accordionContainer = new StackPane(appendix);
+        accordionContainer.setPadding(new Insets(10));
+        root.setLeft(accordionContainer);
 
-        // text field to search for chapter name or chapter number
+        // text field to search for chapter name or chapter number & add it to chapterPane
         TextField searchField = new TextField();
         searchField.setPromptText("اسم السورة");
+        chaptersPane.getChildren().add(searchField);
 
-        // listview to list all chapters
-        listView = new ListView<>();
+        // chaptersListView to list all chapters
+        ListView<Chapter> chaptersListView = new ListView<>();
+        chaptersListView.prefHeightProperty().bind(chaptersPane.heightProperty());
 
         // get & list all chapters
         List<Chapter> chapters = Query.loadChapters().getChapters();
-        listView.getItems().addAll(chapters);
+        chaptersListView.getItems().addAll(chapters);
+        chaptersPane.getChildren().add(chaptersListView);
 
         // text filed listener to handel search queries
         searchField.textProperty().addListener((observable, oldText, newText) -> {
-            listView.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
+            chaptersListView.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
         });
-
-
-        // combine listview + text field
-        chaptersPane.getChildren().add(searchField);
-        chaptersPane.getChildren().add(listView);
-
-
-        hiddenSidesPane = new HiddenSidesPane();
-        root.getChildren().add(hiddenSidesPane);
-        hiddenSidesPane.setPrefHeight(500);
-        Button btn= new Button("Quran Pages");
-        hiddenSidesPane.setContent(btn);
-        hiddenSidesPane.setLeft(chaptersPane);
-
-        btn.setOnAction(e -> {
-            showSideBar();
-        });
-        hiddenSidesPane.setPinnedSide(Side.LEFT);
-
-        Text text = new Text("Hello");
-//        text.getStyleClass().add(Styles.TEXT_BOLD);
-//        text.getStyleClass().add(Styles.TITLE_1);
-        root.getChildren().add(text);
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
         primaryStage.setTitle("JQuran");
         primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
         primaryStage.show();
-
     }
 
-    public void showSideBar() {
-        if(hiddenSidesPane.getPinnedSide() == null)
-            hiddenSidesPane.setPinnedSide(Side.LEFT);
-        else hiddenSidesPane.setPinnedSide(null);
-    }
     public static void main(String[] args) {
         launch(args);
     }
