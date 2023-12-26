@@ -4,7 +4,6 @@ import atlantafx.base.theme.CupertinoDark;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -49,18 +48,18 @@ public class MainWindow extends Application {
         searchField.setPromptText("اسم السورة");
         chaptersPane.getChildren().add(searchField);
 
-        // chaptersListView to list all chapters
-        ListView<Chapter> chaptersListView = new ListView<>();
-        chaptersListView.prefHeightProperty().bind(chaptersPane.heightProperty());
+        // chaptersList to list all chapters
+        ListView<Chapter> chaptersList = new ListView<>();
+        chaptersList.prefHeightProperty().bind(chaptersPane.heightProperty());
 
         // get & list all chapters
         List<Chapter> chapters = Query.loadChapters().getChapters();
-        chaptersListView.getItems().addAll(chapters);
-        chaptersPane.getChildren().add(chaptersListView);
+        chaptersList.getItems().addAll(chapters);
+        chaptersPane.getChildren().add(chaptersList);
 
         // text filed listener to handel search queries
         searchField.textProperty().addListener((observable, oldText, newText) -> {
-            chaptersListView.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
+            chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
         });
 
         Scene scene = new Scene(root);
