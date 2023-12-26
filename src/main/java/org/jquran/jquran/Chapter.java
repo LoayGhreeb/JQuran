@@ -73,7 +73,7 @@ public class Chapter {
         this.bismillah_pre = bismillah_pre;
     }
 
-    public ArrayList<Integer> getPages() {
+    public List<Integer> getPages() {
         return pages;
     }
 
