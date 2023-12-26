@@ -7,6 +7,7 @@ import java.util.List;
 @JsonIgnoreProperties (ignoreUnknown = true)
 public class Page {
     private List<Verse> verses;
+
     public List<Verse> getVerses() {
         return verses;
     }
@@ -14,7 +15,7 @@ public class Page {
 
     public String getLines(int fontVersion) {
         List<StringBuilder> lines = new ArrayList<>();
-        for(int i = 0; i < 16; i++)
+        for (int i = 0; i < 16; i++)
             lines.add(new StringBuilder());
 
         for (Verse verse : verses) {

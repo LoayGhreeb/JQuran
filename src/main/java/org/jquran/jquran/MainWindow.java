@@ -6,7 +6,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -23,7 +25,6 @@ public class MainWindow extends Application {
         double screenHeight = Screen.getPrimary().getBounds().getHeight();
         primaryStage.setWidth(screenWidth * PERCENTAGE);
         primaryStage.setHeight(screenHeight * PERCENTAGE);
-
         // The root Pane
         BorderPane root = new BorderPane();
         root.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
@@ -53,7 +54,7 @@ public class MainWindow extends Application {
         chaptersList.prefHeightProperty().bind(chaptersPane.heightProperty());
 
         // get & list all chapters
-        List<Chapter> chapters = Query.loadChapters().getChapters();
+        List<Chapter> chapters = Query.loadChapters();
         chaptersList.getItems().addAll(chapters);
         chaptersPane.getChildren().add(chaptersList);
 

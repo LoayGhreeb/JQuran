@@ -1,12 +1,12 @@
 package org.jquran.jquran;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Chapter {
     private int id, verses_count, revelation_order;
     private String revelation_place, name_simple, name_arabic, name_complex;
     private boolean bismillah_pre;
-    private ArrayList<Integer> pages;
+    private List<Integer> pages;
     private TranslatedName translated_name;
 
     public int getId() {
@@ -77,7 +77,7 @@ public class Chapter {
         return pages;
     }
 
-    public void setPages(ArrayList<Integer> pages) {
+    public void setPages(List<Integer> pages) {
         this.pages = pages;
     }
 

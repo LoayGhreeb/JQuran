@@ -1,16 +1,17 @@
 package org.jquran.jquran;
 
-import java.util.ArrayList;
+
+import java.util.List;
 
 public class QuranReciters {
 
-    private ArrayList<Reciter> recitations;
+    private List<Reciter> recitations;
 
-    public ArrayList<Reciter> getRecitations() {
+    public List<Reciter> getRecitations() {
         return recitations;
     }
 
-    public void setRecitations(ArrayList<Reciter> recitations) {
+    public void setRecitations(List<Reciter> recitations) {
         this.recitations = recitations;
     }
 }
