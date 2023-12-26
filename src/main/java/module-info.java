@@ -3,8 +3,7 @@ module org.jquran.jquran {
     requires javafx.fxml;
     requires com.fasterxml.jackson.databind;
     requires org.controlsfx.controls;
-    requires javafx.swing;
-
+    requires atlantafx.base;
 
     opens org.jquran.jquran to javafx.fxml;
     exports org.jquran.jquran;
