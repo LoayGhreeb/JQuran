@@ -7,7 +7,6 @@ import java.util.List;
 @JsonIgnoreProperties (ignoreUnknown = true)
 public class Page {
     private List<Verse> verses;
-
     public List<Verse> getVerses() {
         return verses;
     }

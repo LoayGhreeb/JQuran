@@ -1,7 +1,7 @@
 package org.jquran.jquran;
 
+import atlantafx.base.theme.NordLight;
 import atlantafx.base.theme.PrimerDark;
-import atlantafx.base.theme.Styles;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
@@ -29,10 +29,11 @@ public class MainWindow extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // The root Pane
-        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         root = new VBox();
-        root.setId("mainVBox");
         root.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+
+
         root.setSpacing(10);
         root.setPadding(new Insets(10, 10, 10, 10));
 
@@ -86,7 +87,6 @@ public class MainWindow extends Application {
 
         Text text = new Text("Hello");
 //        text.getStyleClass().add(Styles.TEXT_BOLD);
-        text.setId("tx");
 //        text.getStyleClass().add(Styles.TITLE_1);
         root.getChildren().add(text);
 
