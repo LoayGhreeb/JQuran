@@ -14,7 +14,8 @@ import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import javafx.util.Callback;
 import org.controlsfx.control.HiddenSidesPane;
-import org.jquran.DownloadAudio;
+
+import atlantafx.base.theme.Dracula;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefWidth(550);
         borderPane.setPrefHeight(1000);

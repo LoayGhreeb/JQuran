@@ -1,14 +1,14 @@
 {
   "recitations": [
     {
-      "id": 2,
-      "reciter_name": "AbdulBaset AbdulSamad",
-      "style": "Murattal"
-    },
-    {
       "id": 1,
       "reciter_name": "AbdulBaset AbdulSamad",
       "style": "Mujawwad"
+    },
+    {
+      "id": 2,
+      "reciter_name": "AbdulBaset AbdulSamad",
+      "style": "Murattal"
     },
     {
       "id": 3,
@@ -26,11 +26,6 @@
       "style": null
     },
     {
-      "id": 12,
-      "reciter_name": "Mahmoud Khalil Al-Husary",
-      "style": "Muallim"
-    },
-    {
       "id": 6,
       "reciter_name": "Mahmoud Khalil Al-Husary",
       "style": null
@@ -41,14 +36,14 @@
       "style": null
     },
     {
-      "id": 9,
-      "reciter_name": "Mohamed Siddiq al-Minshawi",
-      "style": "Murattal"
-    },
-    {
       "id": 8,
       "reciter_name": "Mohamed Siddiq al-Minshawi",
       "style": "Mujawwad"
+    },
+    {
+      "id": 9,
+      "reciter_name": "Mohamed Siddiq al-Minshawi",
+      "style": "Murattal"
     },
     {
       "id": 10,
@@ -59,6 +54,11 @@
       "id": 11,
       "reciter_name": "Mohamed al-Tablawi",
       "style": null
+    },
+    {
+      "id": 12,
+      "reciter_name": "Mahmoud Khalil Al-Husary",
+      "style": "Muallim"
     }
   ]
 }
