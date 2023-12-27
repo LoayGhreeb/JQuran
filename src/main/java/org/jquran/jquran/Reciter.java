@@ -4,7 +4,7 @@ public class Reciter {
 
     private int id;
     private String reciter_name, style;
-
+    private TranslatedName translated_name;
     public int getId() {
         return id;
     }
@@ -27,5 +27,13 @@ public class Reciter {
 
     public void setStyle(String style) {
         this.style = style;
+    }
+
+    public TranslatedName getTranslated_name() {
+        return translated_name;
+    }
+
+    public void setTranslated_name(TranslatedName translated_name) {
+        this.translated_name = translated_name;
     }
 }

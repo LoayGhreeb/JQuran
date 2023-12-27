@@ -47,10 +47,11 @@ public final class DownloadAudio {
         ListView<String> surahListView = new ListView<>();
         surahListView.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         ListView<String> reciterListView = new ListView<>();
+        reciterListView.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
         for (Reciter reciter : reciters) {
             /// reciters name
-            String reciterSName = reciter.getReciter_name();
+            String reciterSName = reciter.getTranslated_name().getName();
             /// reciters style
             String reciterStyle = reciter.getStyle();
             if (reciterStyle == null)
