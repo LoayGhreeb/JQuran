@@ -48,9 +48,6 @@ public final class DownloadAudio {
         surahListView.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         ListView<String> reciterListView = new ListView<>();
 
-        surahListView.setMinWidth(200);
-        reciterListView.setMinWidth(200);
-
         for (Reciter reciter : reciters) {
             /// reciters name
             String reciterSName = reciter.getReciter_name();
@@ -128,12 +125,10 @@ public final class DownloadAudio {
                 System.out.println(exception.getMessage());
             }
         });
-
+        VBox vBox = new VBox();
+        vBox.getChildren().addAll(reciterListView, surahListView, vb);
         BorderPane borderPane= new BorderPane();
-        borderPane.setLeft(reciterListView);
-        borderPane.setCenter(surahListView);
-        borderPane.setRight(vb);
-
+        borderPane.setCenter(vBox);
         downloadStage.setTitle("اختر السورة والقارئ");
         downloadStage.setScene(new Scene(borderPane));
         downloadStage.show();
