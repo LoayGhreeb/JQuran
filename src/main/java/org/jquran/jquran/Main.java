@@ -12,7 +12,6 @@ import javafx.scene.paint.*;
 import javafx.scene.text.*;
 import org.controlsfx.control.HiddenSidesPane;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,9 +44,9 @@ public class Main extends Application {
 
         Button appendix = new Button("الفهرس");
 
-
         hiddenSidesPane.setContent(textFlow);
-//        listView.setOnMouseClicked(event -> setCurrentPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
+        // listView.setOnMouseClicked(event ->
+        // setCurrentPage(listView.getSelectionModel().getSelectedItem().getFirstPage()));
 
         borderPane.setRight(textFlow);
         borderPane.setLeft(appendix);
@@ -66,43 +65,49 @@ public class Main extends Application {
             e.consume();
         });
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
+
         stage.setScene(scene);
         stage.setWidth(800);
         stage.show();
     }
     private void showSurahList() throws IOException {
-//        List<Chapter> chapters = Query.loadChapters();
-//
-//        ObservableList<CustomThing> data = FXCollections.observableArrayList();
-//        for (int i = 0; i < quranChapters.getChapters().size(); i++) {
-//            /// surah name
-//            String surahName = quranChapters.getChapters().get(i).getName_arabic();
-//            /// surah info
-//            int surahNumber = quranChapters.getChapters().get(i).getId();
-//            int verseCount = quranChapters.getChapters().get(i).getVerses_count();
-//            String place = quranChapters.getChapters().get(i).getRevelation_place();
-//            if( place.equals("makkah")){
-//                place = "مكيّة";
-//            }else{
-//                place = "مدنيّة";
-//            }
-//            int firstPage = quranChapters.getChapters().get(i).getPages().getFirst();
-//            String surahInfo = "رقمها"+"_"+ surahNumber + "_" + "آياتها"+ "_" + verseCount + "_" + place;
-//
-//            data.add(new CustomThing(surahName, surahInfo, firstPage));
-//            listView = new ListView<CustomThing>(data);
-//
-//        }
-        /** https://stackoverflow.com/questions/27438629/listview-with-custom-content-in-javafx */
-//        listView.setCellFactory(new Callback<ListView<CustomThing>, ListCell<CustomThing>>() {
-//            @Override
-//            public ListCell<CustomThing> call(ListView<CustomThing> listView) {
-//                return new CustomListCell();
-//            }
-//        });
+        // List<Chapter> chapters = Query.loadChapters();
+        //
+        // ObservableList<CustomThing> data = FXCollections.observableArrayList();
+        // for (int i = 0; i < quranChapters.getChapters().size(); i++) {
+        // /// surah name
+        // String surahName = quranChapters.getChapters().get(i).getName_arabic();
+        // /// surah info
+        // int surahNumber = quranChapters.getChapters().get(i).getId();
+        // int verseCount = quranChapters.getChapters().get(i).getVerses_count();
+        // String place = quranChapters.getChapters().get(i).getRevelation_place();
+        // if( place.equals("makkah")){
+        // place = "مكيّة";
+        // }else{
+        // place = "مدنيّة";
+        // }
+        // int firstPage = quranChapters.getChapters().get(i).getPages().getFirst();
+        // String surahInfo = "رقمها"+"_"+ surahNumber + "_" + "آياتها"+ "_" +
+        // verseCount + "_" + place;
+        //
+        // data.add(new CustomThing(surahName, surahInfo, firstPage));
+        // listView = new ListView<CustomThing>(data);
+        //
+        // }
+        /**
+         * https://stackoverflow.com/questions/27438629/listview-with-custom-content-in-javafx
+         */
+        // listView.setCellFactory(new Callback<ListView<CustomThing>,
+        // ListCell<CustomThing>>() {
+        // @Override
+        // public ListCell<CustomThing> call(ListView<CustomThing> listView) {
+        // return new CustomListCell();
+        // }
+        // });
 
-//        chaptersListView.setCellFactory(chaptersListView -> new CustomListCell());
-//        sidebar.getChildren().add( new Label(quranChapters.loadChapters().get(1).getName_arabic()));
+        // chaptersListView.setCellFactory(chaptersListView -> new CustomListCell());
+        // sidebar.getChildren().add( new
+        // Label(quranChapters.loadChapters().get(1).getName_arabic()));
     }
 
     public void setCurrentPage(int newPageNum) {
@@ -121,17 +126,10 @@ public class Main extends Application {
     }
 
     public void showSideBar() {
-        if(hiddenSidesPane.getPinnedSide() == null)
+        if (hiddenSidesPane.getPinnedSide() == null)
             hiddenSidesPane.setPinnedSide(Side.RIGHT);
-        else hiddenSidesPane.setPinnedSide(null);
+        else
+            hiddenSidesPane.setPinnedSide(null);
     }
-    
-    public static void main(String[] args) {
-        launch();
-    }
+
 }
-
-
-
-
-

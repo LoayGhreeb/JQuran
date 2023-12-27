@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +30,7 @@ public class MainWindow extends Application {
         BorderPane root = new BorderPane();
         root.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
-        // MenuBar
+        // Menubar
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(new Menu("ملف"), new Menu("عرض"), new Menu("بحث"));
         root.setTop(menuBar);
@@ -62,9 +63,21 @@ public class MainWindow extends Application {
         searchField.textProperty().addListener((observable, oldText, newText) -> {
             chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
         });
-
-        // Mushaf
-
+        
+        VBox temp = new VBox(10);
+        temp.setPrefHeight(100);
+        temp.setPrefWidth(100);
+        temp.getChildren().add(new Button("Ok"));
+        root.setRight(temp);
+        Button btn = new Button("القارئ");
+        btn.setOnAction(e->{
+            try {
+                DownloadAudio.display();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        root.setBottom(btn);
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
         primaryStage.setTitle("JQuran");
