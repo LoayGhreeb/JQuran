@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import atlantafx.base.theme.Styles;
+import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -75,9 +77,10 @@ public final class DownloadAudio {
         cancel.setContentDisplay(ContentDisplay.RIGHT);
         cancel.setMnemonicParsing(true);
 
-        VBox vb = new VBox(10);
-        vb.getChildren().addAll(audioDownloadButton, cancel);
-        vb.setAlignment(Pos.CENTER);
+        HBox hBox = new HBox(30);
+        hBox.setPadding(new Insets(10));
+        hBox.getChildren().addAll(audioDownloadButton, cancel);
+        hBox.setAlignment(Pos.CENTER);
 
         audioDownloadButton.setOnAction(e -> {
             try {
@@ -127,7 +130,7 @@ public final class DownloadAudio {
             }
         });
         VBox vBox = new VBox();
-        vBox.getChildren().addAll(reciterListView, surahListView, vb);
+        vBox.getChildren().addAll(reciterListView, surahListView, hBox);
         BorderPane borderPane= new BorderPane();
         borderPane.setCenter(vBox);
         downloadStage.setTitle("اختر السورة والقارئ");
