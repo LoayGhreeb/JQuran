@@ -22,11 +22,6 @@
             <version>21</version>
         </dependency>
         <dependency>
-    <groupId>io.github.mkpaz</groupId>
-    <artifactId>atlantafx-base</artifactId>
-    <version>2.0.1</version>
-</dependency>
-        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>21</version>
@@ -63,7 +58,7 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-                </dependencies>
+    </dependencies>
     <build>
         <plugins>
             <plugin>
