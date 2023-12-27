@@ -9,6 +9,7 @@ import java.util.List;
 public final class Query {
     private static List<Chapter> chapters;
     private static List<Reciter> reciters;
+    private static Font suraNames;
     static ObjectMapper objectMapper = new ObjectMapper();
 
     public static Page loadPage(int pageNum, int fontVersion) throws Exception {
@@ -35,5 +36,11 @@ public final class Query {
         if(reciters == null)
             reciters = objectMapper.readValue(Query.class.getResourceAsStream("quran/reciters.json"), new TypeReference<List<Reciter>>() {});
         return reciters;
+    }
+    public static Font loadSuraNamesFont(int fontSize){
+        if(suraNames == null){
+            suraNames = Font.loadFont(Query.class.getResourceAsStream("fonts/sura_names.ttf"), fontSize);
+        }
+        return suraNames;
     }
 }

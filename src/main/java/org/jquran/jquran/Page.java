@@ -13,6 +13,7 @@ public class Page {
     }
 
 
+
     public String getLines(int fontVersion) {
         List<StringBuilder> lines = new ArrayList<>();
         for (int i = 0; i < 16; i++)

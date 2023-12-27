@@ -29,7 +29,7 @@ public class MainWindow extends Application {
         BorderPane root = new BorderPane();
         root.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
-        // Menubar
+        // MenuBar
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(new Menu("ملف"), new Menu("عرض"), new Menu("بحث"));
         root.setTop(menuBar);
@@ -62,6 +62,8 @@ public class MainWindow extends Application {
         searchField.textProperty().addListener((observable, oldText, newText) -> {
             chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
         });
+
+        // Mushaf
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());

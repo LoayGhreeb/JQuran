@@ -14,6 +14,10 @@ import org.controlsfx.control.HiddenSidesPane;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Main extends Application {
     int pageNum = 1;
@@ -66,7 +70,6 @@ public class Main extends Application {
         stage.setWidth(800);
         stage.show();
     }
-
     private void showSurahList() throws IOException {
 //        List<Chapter> chapters = Query.loadChapters();
 //
