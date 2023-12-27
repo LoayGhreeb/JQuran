@@ -61,6 +61,7 @@ public class Main extends Application {
             e.consume();
         });
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
+
         stage.setScene(scene);
         stage.setWidth(800);
         stage.show();

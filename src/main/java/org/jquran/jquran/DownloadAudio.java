@@ -12,11 +12,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import atlantafx.base.theme.CupertinoDark;
+import atlantafx.base.theme.PrimerLight;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import atlantafx.base.theme.Styles;
+import javafx.application.Application;
 import javafx.css.Style;
+import javafx.geometry.NodeOrientation;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -24,38 +28,46 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class DownloadAudio {
 
+    private static final double PERCENTAGE = 0.6;
+
     public static void display() throws IOException {
         Stage downloadStage = new Stage();
+
+        double screenWidth = Screen.getPrimary().getBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getBounds().getHeight();
+        downloadStage.setWidth(screenWidth * PERCENTAGE);
+        downloadStage.setHeight(screenHeight * PERCENTAGE);
+
 
         List<Chapter> quranChapters = Query.loadChapters();
         List<Reciter> reciters = Query.loadReciters();
 
-        ListView surahListView = new ListView();
-        ListView reciterListView = new ListView();
+        ListView<String> surahListView = new ListView<>();
+        surahListView.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        ListView<String> reciterListView = new ListView<>();
 
-        surahListView.setStyle("-fx-control-inner-background: #222222");
         surahListView.setMinWidth(200);
-        reciterListView.setStyle("-fx-control-inner-background: #222222");
         reciterListView.setMinWidth(200);
 
-        for (int i = 0; i < reciters.size(); i++) {
+        for (Reciter reciter : reciters) {
             /// reciters name
-            String reciterSName = reciters.get(i).getReciter_name();
+            String reciterSName = reciter.getReciter_name();
             /// reciters style
-            String reciterStyle = reciters.get(i).getStyle();
+            String reciterStyle = reciter.getStyle();
             if (reciterStyle == null)
-                reciterStyle = "";
-
-            reciterListView.getItems().add(reciterSName + " " + reciterStyle);
+                reciterListView.getItems().add(reciterSName);
+            else reciterListView.getItems().add(reciterSName + ' ' + reciterStyle);
         }
 
-        for (int i = 0; i < quranChapters.size(); i++) {
-            surahListView.getItems().add(quranChapters.get(i).getName_arabic());
+        for (Chapter quranChapter : quranChapters) {
+            surahListView.getItems().add(quranChapter.getName_arabic());
         }
 
         Button audioDownloadButton = new Button("تحميل");
@@ -70,9 +82,9 @@ public class DownloadAudio {
         cancel.setContentDisplay(ContentDisplay.RIGHT);
         cancel.setMnemonicParsing(true);
 
-        VBox vb = new VBox(audioDownloadButton, cancel);
+        VBox vb = new VBox(10);
+        vb.getChildren().addAll(audioDownloadButton, cancel);
         vb.setAlignment(Pos.CENTER);
-        vb.setStyle("-fx-background-color: #222222");
 
         audioDownloadButton.setOnAction(e -> {
             try {
@@ -123,14 +135,13 @@ public class DownloadAudio {
             }
         });
 
-        var sp = new SplitPane(
-                reciterListView,
-                surahListView,
-                vb);
-        sp.setOrientation(Orientation.HORIZONTAL);
-        sp.setDividerPositions(0.25, 0.5);
+        BorderPane borderPane= new BorderPane();
+        borderPane.setLeft(reciterListView);
+        borderPane.setCenter(surahListView);
+        borderPane.setRight(vb);
+
         downloadStage.setTitle("اختر السورة والقارئ");
-        downloadStage.setScene(new Scene(sp));
+        downloadStage.setScene(new Scene(borderPane));
         downloadStage.show();
     }
 }
