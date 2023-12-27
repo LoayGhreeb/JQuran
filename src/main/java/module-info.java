@@ -6,5 +6,6 @@ module org.jquran.jquran {
     requires atlantafx.base;
 
     opens org.jquran.jquran to javafx.fxml;
+
     exports org.jquran.jquran;
 }
