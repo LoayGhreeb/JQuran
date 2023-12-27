@@ -1,4 +1,3 @@
-
 package org.jquran.jquran;
 
 import java.io.BufferedReader;
@@ -12,28 +11,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import atlantafx.base.theme.CupertinoDark;
-import atlantafx.base.theme.PrimerLight;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import atlantafx.base.theme.Styles;
-import javafx.application.Application;
-import javafx.css.Style;
 import javafx.geometry.NodeOrientation;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ListView;
-import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-public class DownloadAudio {
+
+public final class DownloadAudio {
 
     private static final double PERCENTAGE = 0.6;
 
@@ -115,14 +110,13 @@ public class DownloadAudio {
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                     ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode jsonNode = objectMapper.readTree(reader.readLine().toString());
+                    JsonNode jsonNode = objectMapper.readTree(reader.readLine());
                     for (int i = 0; i < jsonNode.get("audio_files").size(); i++) {
-                        String path = "src/main/resources/org/Quran_Audio/"
+                        String path = "src/main/resources/org/jquran/jquran/Quran_Audio/"
                                 + reciterListView.getSelectionModel().getSelectedItem() + "/";
                         String downloadUrl = jsonNode.get("audio_files").get(i).get("url").toString().replace("\"", "");
                         path = path + downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
-                        downloadUrl = "https://verses.quran.com/"
-                                + downloadUrl;
+                        downloadUrl = "https://verses.quran.com/" + downloadUrl;
                         System.out.println(path);
                         pool.submit(new Downloader(downloadUrl, path));
                     }

@@ -9,7 +9,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 public class Downloader implements Runnable {
-    private String url;
+    private final String url;
     private final String toPath;
 
     public Downloader(String url, String toPath) {
@@ -25,12 +25,12 @@ public class Downloader implements Runnable {
 
     public void downloadFile(String url, String toPath) {
         try {
-            File f = new File(toPath);
-            if (f.isFile()) {
+            File file = new File(toPath);
+            if (file.isFile()) {
                 return;
             }
-            f.getParentFile().mkdirs();
-            f.createNewFile();
+            file.getParentFile().mkdirs();
+            file.createNewFile();
             URL downloadUrl = URI.create(url).toURL();
             ReadableByteChannel readableByteChannel = Channels.newChannel(downloadUrl.openStream());
             FileOutputStream fileOutputStream = new FileOutputStream(toPath, false);
