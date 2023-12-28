@@ -266,7 +266,7 @@ public class MainWindow extends Application {
             primaryStage.setWidth(screenWidth * PERCENTAGE);
         });
 
-        Button btn = new Button("القارئ");
+        Button btn = new Button("ادارة التحميلات");
         btn.setOnAction(e -> {
             try {
                 DownloadAudio.display();
