@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 
 public class MainWindow extends Application {
     private static final double PERCENTAGE = 0.9;
-    private static final int fontSize = 32;
+    private static final int fontSize = 25;
     private static int fontVersion = 1;
     private static TextFlow pageTextFlow;
     private static ListView<Chapter> chaptersList;
-    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(1);
+    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(50);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -183,7 +183,7 @@ public class MainWindow extends Application {
         root.setCenter(mushafLayout);
         setCurrentPage(pageNumber.get());
 
-        Button nextButton = new Button("التالي");
+        Button nextButton = new Button(null,new FontIcon(Material.ARROW_LEFT));
         nextButton.setOnAction(e -> {
             try {
                 setCurrentPage(pageNumber.get() + 1);
@@ -192,7 +192,7 @@ public class MainWindow extends Application {
             }
         });
 
-        Button prevButton = new Button("السابق");
+        Button prevButton = new Button(null, new FontIcon(Material.ARROW_RIGHT));
         prevButton.setOnAction(e -> {
             try {
                 setCurrentPage(pageNumber.get() - 1);
@@ -332,7 +332,7 @@ public class MainWindow extends Application {
                     surahName.setFont(Query.loadSurahNameFont(30));
                     // Surah name box
                     Text box = new Text("ò");
-                    box.setFont(Query.loadSurahNameFont(50));
+                    box.setFont(Query.loadSurahNameFont(45));
                     StackPane stackPane = new StackPane();
                     stackPane.setAlignment(Pos.CENTER);
                     StackPane.setMargin(surahName, new Insets(13, 25, 0, 25));

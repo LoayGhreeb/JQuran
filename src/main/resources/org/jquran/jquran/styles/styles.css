@@ -4,5 +4,6 @@
 
 #verse:hover{
     -fx-fill: #22cbd8;
+    -fx-cursor: HAND;
     -fx-background-color: rgba(32, 37, 37, 0.4);
 }
