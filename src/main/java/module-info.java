@@ -1,16 +1,12 @@
 module org.jquran.jquran {
     requires javafx.controls;
-    requires javafx.fxml;
     requires javafx.media;
-    requires com.fasterxml.jackson.databind;
     requires org.controlsfx.controls;
     requires atlantafx.base;
-    requires org.xerial.sqlitejdbc;
-    requires org.apache.commons.lang3;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.material;
-
-    opens org.jquran.jquran to javafx.fxml;
-
+    requires com.fasterxml.jackson.databind;
+    requires org.xerial.sqlitejdbc;
+    requires org.apache.logging.log4j.slf4j.impl;
     exports org.jquran.jquran;
 }
