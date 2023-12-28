@@ -281,7 +281,6 @@ public class MainWindow extends Application {
                 hB.getChildren().remove(4);
                 hB.getChildren().add(mediaControl);
             }
-            primaryStage.setWidth(screenWidth * PERCENTAGE);
         });
 
         Button downloadManager = new Button( "ادارة التحميلات", new FontIcon(Material.CLOUD_DOWNLOAD));
@@ -384,8 +383,8 @@ public class MainWindow extends Application {
                     lines.get(curLineNum + 1).add("ó");
                 }
             }
-            // handle if the last line of the page at line 14 -> add box with the next surah
-            // name
+            // handle if the last line of the page at line 14 -> add box with the next surah name (not completed, yet)
+
 
             // Add words to the curLine
             for (Word verseWord : verseWords) {
@@ -394,10 +393,6 @@ public class MainWindow extends Application {
             }
         }
 
-        int chapterId = page.getVerses().getFirst().getChapter_id();
-        pageNumber.addListener((observable, old, newValue) -> {
-            chaptersList.getSelectionModel().select(chapterId - 1);
-        });
         pageNumber.set(newPageNumber);
         return lines;
     }
