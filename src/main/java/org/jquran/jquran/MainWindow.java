@@ -210,12 +210,34 @@ public class MainWindow extends Application {
 
                 return;
             }
-            for (File x : l)
-                lf.add(x);
+            for (File x : l) {
+                System.out.println(String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1));
+                System.out.println(x.getName()
+                        .toString().substring(0, 3));
+                System.out.println(String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1)
+                        .equals(x.getName()
+                                .toString().substring(0, 3)));
+                if (String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1)
+                        .equals(x.getName()
+                                .toString().substring(0, 3))) {
+                    lf.add(x);
+                }
+            }
+            if (lf.isEmpty()) {
+                var alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Exception Dialog");
+                alert.setHeaderText("No files found");
+                alert.setContentText("you have to download the audio files first");
+
+                alert.initOwner(root.getScene().getWindow());
+                alert.showAndWait();
+
+                return;
+            }
             int i = 0;
             ArrayList players = new ArrayList<MediaPlayer>();
             Collections.sort(lf);
-            while (i < l.length) {
+            while (i < lf.size()) {
                 MediaPlayer mp = new MediaPlayer(new Media(lf.get(i).toURI().toString()));
                 players.add(mp);
                 i++;
@@ -268,8 +290,6 @@ public class MainWindow extends Application {
         hB.setAlignment(Pos.CENTER);
         root.setBottom(hB);
         // Download audio Stage
-        Button readerBtn = new Button("القارئ");
-        readerBtn.setOnAction(e -> DownloadAudio.display());
 
         // Set Mushaf layout
         pageTextFlow = new TextFlow();
