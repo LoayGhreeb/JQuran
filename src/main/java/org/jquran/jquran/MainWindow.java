@@ -169,6 +169,7 @@ public class MainWindow extends Application {
         });
 
         // Set Mushaf layout
+        BorderPane mushafLayout = new BorderPane();
         pageTextFlow = new TextFlow();
         pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         pageTextFlow.setTextAlignment(TextAlignment.CENTER);
@@ -176,11 +177,37 @@ public class MainWindow extends Application {
         ScrollPane scrollPane = new ScrollPane(pageTextFlow);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
-        root.setCenter(scrollPane);
+
+        mushafLayout.setCenter(scrollPane);
+        root.setCenter(mushafLayout);
         setCurrentPage(pageNumber.get());
 
+        Button nextButton = new Button("التالي");
+        nextButton.setOnAction(e -> {
+            try {
+                setCurrentPage(pageNumber.get() + 1);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        Button prevButton = new Button("السابق");
+        prevButton.setOnAction(e -> {
+            try {
+                setCurrentPage(pageNumber.get() - 1);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        
+        HBox navigationContainer = new HBox(10);
+        navigationContainer.setAlignment(Pos.CENTER);
+        navigationContainer.getChildren().addAll(prevButton, nextButton);
+        mushafLayout.setBottom(navigationContainer);
         // audio player
         HBox hB = new HBox();
+        hB.setPadding(new Insets(20));
+        hB.setSpacing(20);
         var reciterComboBox = new ComboBox<String>();
         List<Reciter> reciters = Query.loadReciters();
         for (Reciter reciter : reciters) {
