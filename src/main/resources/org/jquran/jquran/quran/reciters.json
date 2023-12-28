@@ -1,10 +1,10 @@
 [
     {
-        "id": 8,
-        "reciter_name": "Mohamed Siddiq al-Minshawi",
+        "id": 1,
+        "reciter_name": "AbdulBaset AbdulSamad",
         "style": "Mujawwad",
         "translated_name": {
-            "name": "محمد صديق المنشاوي",
+            "name": "عبد الباسط عبد الصمد",
             "language_name": "arabic"
         }
     },
@@ -18,11 +18,11 @@
         }
     },
     {
-        "id": 1,
-        "reciter_name": "AbdulBaset AbdulSamad",
-        "style": "Mujawwad",
+        "id": 3,
+        "reciter_name": "Abdur-Rahman as-Sudais",
+        "style": null,
         "translated_name": {
-            "name": "عبد الباسط عبد الصمد",
+            "name": "عبدالرحمن السديس",
             "language_name": "arabic"
         }
     },
@@ -45,15 +45,6 @@
         }
     },
     {
-        "id": 12,
-        "reciter_name": "Mahmoud Khalil Al-Husary",
-        "style": "Muallim",
-        "translated_name": {
-            "name": "محمود خليل الحصري",
-            "language_name": "arabic"
-        }
-    },
-    {
         "id": 6,
         "reciter_name": "Mahmoud Khalil Al-Husary",
         "style": null,
@@ -68,6 +59,24 @@
         "style": null,
         "translated_name": {
             "name": "مشاري راشد العفاسي",
+            "language_name": "arabic"
+        }
+    },
+    {
+        "id": 8,
+        "reciter_name": "Mohamed Siddiq al-Minshawi",
+        "style": "Mujawwad",
+        "translated_name": {
+            "name": "محمد صديق المنشاوي",
+            "language_name": "arabic"
+        }
+    },
+    {
+        "id": 9,
+        "reciter_name": "Mohamed Siddiq al-Minshawi",
+        "style": "Murattal",
+        "translated_name": {
+            "name": "محمد صديق المنشاوي",
             "language_name": "arabic"
         }
     },
@@ -90,20 +99,11 @@
         }
     },
     {
-        "id": 3,
-        "reciter_name": "Abdur-Rahman as-Sudais",
-        "style": null,
+        "id": 12,
+        "reciter_name": "Mahmoud Khalil Al-Husary",
+        "style": "Muallim",
         "translated_name": {
-            "name": "عبدالرحمن السديس",
-            "language_name": "arabic"
-        }
-    },
-    {
-        "id": 9,
-        "reciter_name": "Mohamed Siddiq al-Minshawi",
-        "style": "Murattal",
-        "translated_name": {
-            "name": "محمد صديق المنشاوي",
+            "name": "محمود خليل الحصري",
             "language_name": "arabic"
         }
     }

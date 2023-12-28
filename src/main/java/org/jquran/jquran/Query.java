@@ -1,4 +1,5 @@
 package org.jquran.jquran;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.scene.text.Font;
@@ -15,18 +16,22 @@ public final class Query {
     private static Statement statement;
 
     public static Page loadPage(int pageNum, int fontVersion) {
-        if (pageNum <= 0 || pageNum > 604 || fontVersion < 1 || fontVersion > 2) return null;
+        if (pageNum <= 0 || pageNum > 604 || fontVersion < 1 || fontVersion > 2)
+            return null;
         try {
-            return objectMapper.readValue(Query.class.getResourceAsStream("quran/v" + fontVersion + "/" + pageNum + ".json"), Page.class);
-        }catch (Exception e){
+            return objectMapper.readValue(
+                    Query.class.getResourceAsStream("quran/v" + fontVersion + "/" + pageNum + ".json"), Page.class);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
     public static Font loadPageFont(int pageNum, int fontVersion, int fontSize) {
-        if (pageNum <= 0 || pageNum > 604 || fontVersion < 1 || fontVersion > 2) return null;
-        return Font.loadFont(Query.class.getResourceAsStream("fonts/v" + fontVersion + "/p" + pageNum + ".ttf"), fontSize);
+        if (pageNum <= 0 || pageNum > 604 || fontVersion < 1 || fontVersion > 2)
+            return null;
+        return Font.loadFont(Query.class.getResourceAsStream("fonts/v" + fontVersion + "/p" + pageNum + ".ttf"),
+                fontSize);
     }
 
     public static Font loadSurahNameFont(int fontSize) {
@@ -34,21 +39,25 @@ public final class Query {
     }
 
     public static List<Chapter> loadChapters() {
-        if(chapters == null) {
+        if (chapters == null) {
             try {
-                chapters = objectMapper.readValue(Query.class.getResourceAsStream("quran/chapters.json"), new TypeReference<List<Chapter>>() {});
-            } catch (Exception e){
+                chapters = objectMapper.readValue(Query.class.getResourceAsStream("quran/chapters.json"),
+                        new TypeReference<List<Chapter>>() {
+                        });
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return chapters;
     }
 
-    public static List<Reciter> loadReciters(){
-        if(reciters == null) {
+    public static List<Reciter> loadReciters() {
+        if (reciters == null) {
             try {
-                reciters = objectMapper.readValue(Query.class.getResourceAsStream("quran/reciters.json"), new TypeReference<List<Reciter>>() {});
-            }catch (Exception e){
+                reciters = objectMapper.readValue(Query.class.getResourceAsStream("quran/reciters.json"),
+                        new TypeReference<List<Reciter>>() {
+                        });
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -56,8 +65,9 @@ public final class Query {
     }
 
     public static String loadSurahNameCode(int surahId) throws SQLException {
-        if(connection == null) {
-            connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/org/jquran/jquran/fonts/glyphs.db");
+        if (connection == null) {
+            connection = DriverManager
+                    .getConnection("jdbc:sqlite:src/main/resources/org/jquran/jquran/fonts/glyphs.db");
             statement = connection.createStatement();
         }
         String query = "SELECT qcf_v1 FROM surah_glyphs WHERE id = " + surahId + ";";

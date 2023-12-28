@@ -68,6 +68,21 @@
             <artifactId>cassandra-all</artifactId>
             <version>4.1.3</version>
         </dependency>
+        <dependency>
+             <groupId>org.openjfx</groupId>
+             <artifactId>javafx-media</artifactId>
+             <version>18.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-material-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
