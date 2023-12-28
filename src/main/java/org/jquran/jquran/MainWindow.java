@@ -28,6 +28,12 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -39,6 +45,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -224,6 +231,13 @@ public class MainWindow extends Application {
             primaryStage.setWidth(screenWidth * PERCENTAGE);
         });
 
+        chaptersList.setOnMouseClicked(event -> {
+            try {
+                setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         // text filed listener to handel search queries
         searchField.textProperty().addListener((observable, oldText, newText) ->
 
@@ -253,6 +267,22 @@ public class MainWindow extends Application {
         hB.getChildren().addAll(start, reciterComboBox, surahComboBox, btn);
         hB.setAlignment(Pos.CENTER);
         root.setBottom(hB);
+        // Download audio Stage
+        Button readerBtn = new Button("القارئ");
+        readerBtn.setOnAction(e -> DownloadAudio.display());
+        root.setBottom(readerBtn);
+
+        // Set Mushaf layout
+        pageTextFlow = new TextFlow();
+        pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        pageTextFlow.setTextAlignment(TextAlignment.CENTER);
+        pageTextFlow.setMinWidth(500);
+        ScrollPane scrollPane = new ScrollPane(pageTextFlow);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        root.setCenter(scrollPane);
+        setCurrentPage(pageNumber.get());
+
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
 
@@ -278,6 +308,8 @@ public class MainWindow extends Application {
 
     public void setCurrentPage(int newPageNumber) throws Exception {
         List<List<String>> lines = getFormattedPage(newPageNumber);
+        if (lines == null)
+            return;
         if (lines == null)
             return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
@@ -320,6 +352,8 @@ public class MainWindow extends Application {
 
         int curLineNum = 0;
         Page page = Query.loadPage(newPageNumber, fontVersion);
+        if (page == null)
+            return null;
         if (page == null)
             return null;
         List<Verse> pageVerses = page.getVerses();

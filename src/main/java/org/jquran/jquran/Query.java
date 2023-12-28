@@ -15,11 +15,16 @@ public final class Query {
     private static Connection connection;
     private static Statement statement;
 
-    public static Page loadPage(int pageNum, int fontVersion) throws Exception {
+    public static Page loadPage(int pageNum, int fontVersion) {
         if (pageNum <= 0 || pageNum > 604 || fontVersion < 1 || fontVersion > 2)
             return null;
-        return objectMapper.readValue(
-                Query.class.getResourceAsStream("quran/v" + fontVersion + "/" + pageNum + ".json"), Page.class);
+        try {
+            return objectMapper.readValue(
+                    Query.class.getResourceAsStream("quran/v" + fontVersion + "/" + pageNum + ".json"), Page.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static Font loadPageFont(int pageNum, int fontVersion, int fontSize) {
