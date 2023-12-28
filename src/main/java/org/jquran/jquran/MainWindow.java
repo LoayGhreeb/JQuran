@@ -155,6 +155,30 @@ public class MainWindow extends Application {
         chaptersPane.getChildren().add(chaptersList);
         chaptersList.getSelectionModel().select(pageNumber.get() - 1);
 
+        chaptersList.setOnMouseClicked(event -> {
+            try {
+                setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // text filed listener to handel search queries
+        searchField.textProperty().addListener((observable, oldText, newText) -> {
+            chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
+        });
+
+        // Set Mushaf layout
+        pageTextFlow = new TextFlow();
+        pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        pageTextFlow.setTextAlignment(TextAlignment.CENTER);
+        pageTextFlow.setMinWidth(500);
+        ScrollPane scrollPane = new ScrollPane(pageTextFlow);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        root.setCenter(scrollPane);
+        setCurrentPage(pageNumber.get());
+
         // audio player
         HBox hB = new HBox();
         var reciterComboBox = new ComboBox<String>();
@@ -182,7 +206,7 @@ public class MainWindow extends Application {
         start.setOnAction(e -> {
             File f = new File("src/main/resources/org/jquran/jquran/Quran_Audio/"
                     + reciterComboBox.getSelectionModel().getSelectedItem() + "/");
-            File l[] = f.listFiles();
+            File[] l = f.listFiles();
             List<File> lf = new ArrayList<File>();
             if (l == null) {
                 var alert = new Alert(AlertType.ERROR);
@@ -195,10 +219,9 @@ public class MainWindow extends Application {
 
                 return;
             }
-            for (File x : l)
-                lf.add(x);
+            Collections.addAll(lf, l);
             int i = 0;
-            ArrayList players = new ArrayList<MediaPlayer>();
+            ArrayList<MediaPlayer> players = new ArrayList<>();
             Collections.sort(lf);
             while (i < l.length) {
                 MediaPlayer mp = new MediaPlayer(new Media(lf.get(i).toURI().toString()));
@@ -216,31 +239,6 @@ public class MainWindow extends Application {
             primaryStage.setWidth(screenWidth * PERCENTAGE);
         });
 
-        chaptersList.setOnMouseClicked(event -> {
-            try {
-                setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        // text filed listener to handel search queries
-        searchField.textProperty().addListener((observable, oldText, newText) ->
-
-        {
-            chaptersList
-                    .getItems().setAll(
-                            chapters.stream()
-                                    .filter(chapter -> chapter.getName_arabic().contains(newText)
-                                            || String.valueOf(chapter.getId()).contains(newText))
-                                    .collect(Collectors.toList()));
-        });
-
-        VBox temp = new VBox(
-                10);
-        temp.setPrefHeight(100);
-        temp.setPrefWidth(100);
-        temp.getChildren().add(new Button("Ok"));
-        root.setRight(temp);
         Button btn = new Button("القارئ");
         btn.setOnAction(e -> {
             try {
@@ -256,20 +254,8 @@ public class MainWindow extends Application {
         Button readerBtn = new Button("القارئ");
         readerBtn.setOnAction(e -> DownloadAudio.display());
 
-        // Set Mushaf layout
-        pageTextFlow = new TextFlow();
-        pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
-        pageTextFlow.setTextAlignment(TextAlignment.CENTER);
-        pageTextFlow.setMinWidth(500);
-        ScrollPane scrollPane = new ScrollPane(pageTextFlow);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        root.setCenter(scrollPane);
-        setCurrentPage(pageNumber.get());
-
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
-
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
             if (e.getCode() == KeyCode.LEFT) {
                 try {
@@ -292,10 +278,7 @@ public class MainWindow extends Application {
 
     public void setCurrentPage(int newPageNumber) throws Exception {
         List<List<String>> lines = getFormattedPage(newPageNumber);
-        if (lines == null)
-            return;
-        if (lines == null)
-            return;
+        if (lines == null) return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
         pageTextFlow.getChildren().clear();
         for (List<String> line : lines) {
@@ -338,8 +321,6 @@ public class MainWindow extends Application {
         Page page = Query.loadPage(newPageNumber, fontVersion);
         if (page == null)
             return null;
-        if (page == null)
-            return null;
         List<Verse> pageVerses = page.getVerses();
         for (Verse verse : pageVerses) {
             List<Word> verseWords = verse.getWords();
@@ -360,8 +341,7 @@ public class MainWindow extends Application {
                     lines.get(curLineNum + 1).add("ó");
                 }
             }
-            // handle if the last line of the page at line 14 -> add box with the next surah
-            // name
+            // handle if the last line of the page at line 14 -> add box with the next surah name
 
             // Add words to the curLine
             for (Word verseWord : verseWords) {
