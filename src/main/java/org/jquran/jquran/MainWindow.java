@@ -26,6 +26,8 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material.Material;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -164,12 +166,7 @@ public class MainWindow extends Application {
 
         // text filed listener to handel search queries
         searchField.textProperty().addListener((observable, oldText, newText) -> {
-            chaptersList
-                    .getItems().setAll(
-                            chapters.stream()
-                                    .filter(chapter -> chapter.getName_arabic().contains(newText)
-                                            || String.valueOf(chapter.getId()).contains(newText))
-                                    .collect(Collectors.toList()));
+            chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
         });
 
         // Set Mushaf layout
@@ -205,9 +202,11 @@ public class MainWindow extends Application {
         });
         
         HBox navigationContainer = new HBox(10);
+        navigationContainer.setPadding(new Insets(10));
         navigationContainer.setAlignment(Pos.CENTER);
         navigationContainer.getChildren().addAll(prevButton, nextButton);
         mushafLayout.setBottom(navigationContainer);
+
         // audio player
         HBox hB = new HBox();
         hB.setPadding(new Insets(20));
@@ -251,15 +250,7 @@ public class MainWindow extends Application {
                 return;
             }
             for (File x : l) {
-                System.out.println(String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1));
-                System.out.println(x.getName()
-                        .toString().substring(0, 3));
-                System.out.println(String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1)
-                        .equals(x.getName()
-                                .toString().substring(0, 3)));
-                if (String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1)
-                        .equals(x.getName()
-                                .toString().substring(0, 3))) {
+                if (String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1).equals(x.getName().substring(0, 3))) {
                     lf.add(x);
                 }
             }
@@ -293,19 +284,19 @@ public class MainWindow extends Application {
             primaryStage.setWidth(screenWidth * PERCENTAGE);
         });
 
-        Button btn = new Button("ادارة التحميلات");
-        btn.setOnAction(e -> {
+        Button downloadManager = new Button( "ادارة التحميلات", new FontIcon(Material.CLOUD_DOWNLOAD));
+        downloadManager.setOnAction(e -> {
             try {
                 DownloadAudio.display();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
         });
-        hB.getChildren().addAll(start, reciterComboBox, surahComboBox, btn);
+
+        hB.getChildren().addAll(start, reciterComboBox, surahComboBox, downloadManager);
         hB.setAlignment(Pos.CENTER);
         root.setBottom(hB);
         // Download audio Stage
-
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
@@ -330,8 +321,7 @@ public class MainWindow extends Application {
 
     public void setCurrentPage(int newPageNumber) throws Exception {
         List<List<String>> lines = getFormattedPage(newPageNumber);
-        if (lines == null)
-            return;
+        if (lines == null) return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
         pageTextFlow.getChildren().clear();
         for (List<String> line : lines) {
@@ -372,8 +362,7 @@ public class MainWindow extends Application {
 
         int curLineNum = 0;
         Page page = Query.loadPage(newPageNumber, fontVersion);
-        if (page == null)
-            return null;
+        if (page == null) return null;
         List<Verse> pageVerses = page.getVerses();
         for (Verse verse : pageVerses) {
             List<Word> verseWords = verse.getWords();
