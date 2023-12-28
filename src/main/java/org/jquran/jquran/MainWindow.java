@@ -1,8 +1,11 @@
 package org.jquran.jquran;
 
+import atlantafx.base.controls.ToggleSwitch;
 import atlantafx.base.theme.CupertinoDark;
-import atlantafx.base.theme.PrimerLight;
+import atlantafx.base.theme.CupertinoLight;
+import atlantafx.base.theme.Styles;
 import javafx.application.Application;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
@@ -10,9 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -26,13 +27,15 @@ import java.util.stream.Collectors;
 
 public class MainWindow extends Application {
     private static final double PERCENTAGE = 0.9;
-    private static int pageNumber = 1;
-    private static final int fontSize = 33;
-    private static final int fontVersion = 1;
-    TextFlow pageTextFlow;
+    private static final int fontSize = 32;
+    private static int fontVersion = 1;
+    private static TextFlow pageTextFlow;
+    private static ListView<Chapter> chaptersList;
+    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(1);
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
         // Set the stage size
         double screenWidth = Screen.getPrimary().getBounds().getWidth();
         double screenHeight = Screen.getPrimary().getBounds().getHeight();
@@ -44,7 +47,75 @@ public class MainWindow extends Application {
 
         // Menubar
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(new Menu("ملف"), new Menu("عرض"), new Menu("بحث"));
+
+        Menu viewMenu = new Menu("عرض");
+        ToggleGroup group1 = new ToggleGroup();
+
+        ToggleSwitch light = new ToggleSwitch("Light");
+        light.pseudoClassStateChanged(Styles.STATE_SUCCESS, true);
+        MenuItem lightMenuItem = new MenuItem(null, light);
+        light.setToggleGroup(group1);
+
+        ToggleSwitch dark = new ToggleSwitch("Dark");
+        dark.pseudoClassStateChanged(Styles.STATE_SUCCESS, true);
+        MenuItem darkMenuItem = new MenuItem(null, dark);
+        dark.setToggleGroup(group1);
+        dark.setSelected(true);
+        dark.setDisable(true);
+
+
+        ToggleGroup group2 = new ToggleGroup();
+
+        ToggleSwitch v1 = new ToggleSwitch("الخط الأول");
+        v1.pseudoClassStateChanged(Styles.STATE_SUCCESS, true);
+        MenuItem v1MenuItem = new MenuItem(null, v1);
+        v1.setToggleGroup(group2);
+        v1.setDisable(true);
+        v1.setSelected(true);
+
+        ToggleSwitch v2 = new ToggleSwitch("الخط الثاني");
+        v2.pseudoClassStateChanged(Styles.STATE_SUCCESS, true);
+        MenuItem v2MenuItem = new MenuItem(null, v2);
+        v2.setToggleGroup(group2);
+
+        viewMenu.getItems().addAll(lightMenuItem, darkMenuItem, new SeparatorMenuItem(), v1MenuItem, v2MenuItem);
+
+        dark.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
+            light.setDisable(false);
+            dark.setDisable(true);
+        });
+
+        light.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
+            dark.setDisable(false);
+            light.setDisable(true);
+        });
+
+        v1.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            fontVersion = 1;
+            try {
+                setCurrentPage(pageNumber.get());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            v2.setDisable(false);
+            v1.setDisable(true);
+        });
+
+
+        v2.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            fontVersion = 2;
+            try {
+                setCurrentPage(pageNumber.get());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            v1.setDisable(false);
+            v2.setDisable(true);
+        });
+
+        menuBar.getMenus().addAll(new Menu("ملف"), viewMenu, new Menu("بحث"));
         root.setTop(menuBar);
 
         /* create Accordion (appendix) contains the chaptersPane &
@@ -63,8 +134,16 @@ public class MainWindow extends Application {
         chaptersPane.getChildren().add(searchField);
 
         // chaptersList to list all chapters
-        ListView<Chapter> chaptersList = new ListView<>();
+        chaptersList = new ListView<>();
         chaptersList.prefHeightProperty().bind(chaptersPane.heightProperty());
+
+        // get & list all chapters
+        List<Chapter> chapters = Query.loadChapters();
+        chaptersList.getItems().addAll(chapters);
+        chaptersPane.getChildren().add(chaptersList);
+        chaptersList.getSelectionModel().select(pageNumber.get() - 1);
+
+
         chaptersList.setOnMouseClicked(event -> {
             try {
                 setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst());
@@ -72,18 +151,13 @@ public class MainWindow extends Application {
                 throw new RuntimeException(e);
             }
         });
-        // get & list all chapters
-        List<Chapter> chapters = Query.loadChapters();
-        chaptersList.getItems().addAll(chapters);
-        chaptersPane.getChildren().add(chaptersList);
-
         // text filed listener to handel search queries
         searchField.textProperty().addListener((observable, oldText, newText) -> {
             chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
         });
         // Download audio Stage
         Button btn = new Button("القارئ");
-        btn.setOnAction(e-> DownloadAudio.display());
+        btn.setOnAction(e -> DownloadAudio.display());
         root.setBottom(btn);
 
         // Set Mushaf layout
@@ -95,7 +169,7 @@ public class MainWindow extends Application {
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
         root.setCenter(scrollPane);
-        setCurrentPage(pageNumber);
+        setCurrentPage(pageNumber.get());
 
 
         Scene scene = new Scene(root);
@@ -104,20 +178,18 @@ public class MainWindow extends Application {
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
             if (e.getCode() == KeyCode.LEFT) {
                 try {
-                    setCurrentPage(pageNumber + 1);
+                    setCurrentPage(pageNumber.get() + 1);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             } else if (e.getCode() == KeyCode.RIGHT) {
                 try {
-                    setCurrentPage(pageNumber - 1);
+                    setCurrentPage(pageNumber.get() - 1);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
             }
-            e.consume();
         });
-
         primaryStage.setTitle("JQuran");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -125,20 +197,18 @@ public class MainWindow extends Application {
 
     public void setCurrentPage(int newPageNumber) throws Exception {
         List<List<String>> lines = getFormattedPage(newPageNumber);
-        if(lines == null) return;
+        if (lines == null) return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
         pageTextFlow.getChildren().clear();
         for (List<String> line : lines) {
             for (String word : line) {
                 // Surah name
-                if(word.charAt(0) == '\\') {
+                if (word.charAt(0) == '\\') {
                     Text surahName = new Text(word);
-                    surahName.setFont(Query.loadSurahNameFont(fontSize + 10));
+                    surahName.setFont(Query.loadSurahNameFont(30));
                     // Surah name box
                     Text box = new Text("ò");
-                    box.setFont(Query.loadSurahNameFont(fontSize + 20));
-                    surahName.setId("surahName");
-                    box.setId("surahName");
+                    box.setFont(Query.loadSurahNameFont(50));
                     StackPane stackPane = new StackPane();
                     stackPane.setAlignment(Pos.CENTER);
                     StackPane.setMargin(surahName, new Insets(13, 25, 0, 25));
@@ -149,27 +219,26 @@ public class MainWindow extends Application {
                 else {
                     Text currentWord = new Text(word);
                     // the current word is bismillah
-                    if(word.charAt(0) == 'ó')
+                    if (word.charAt(0) == 'ó')
                         currentWord.setFont(Query.loadSurahNameFont(40));
                     else
                         currentWord.setFont(pageFont);
-
+                    currentWord.setId("verse");
                     pageTextFlow.getChildren().add(currentWord);
                 }
             }
             pageTextFlow.getChildren().add(new Text("\n"));
         }
-        pageNumber = newPageNumber;
     }
 
-    public List<List<String>> getFormattedPage(int pageNumber) throws Exception {
+    public List<List<String>> getFormattedPage(int newPageNumber) throws Exception {
         List<List<String>> lines = new ArrayList<>();
         for (int i = 0; i < 15; i++)
             lines.add(new ArrayList<>());
 
         int curLineNum = 0;
-        Page page = Query.loadPage(pageNumber, fontVersion);
-        if(page == null) return null;
+        Page page = Query.loadPage(newPageNumber, fontVersion);
+        if (page == null) return null;
         List<Verse> pageVerses = page.getVerses();
         for (Verse verse : pageVerses) {
             List<Word> verseWords = verse.getWords();
@@ -181,12 +250,11 @@ public class MainWindow extends Application {
             chapterCode += Query.loadSurahNameCode(verseChapter);  // The surah name unicode in QCF_BSML
 
             if (currentVerse == 1) {
-                if(pageNumber == 1){
+                if (newPageNumber == 1 || newPageNumber == 187) {
                     lines.get(curLineNum).add(chapterCode);
-                }
-                else if (verseWords.getFirst().getLine_number() == 2) {
+                } else if (verseWords.getFirst().getLine_number() == 2) {
                     lines.get(curLineNum).add("ó");
-                } else{
+                } else {
                     lines.get(curLineNum).add(chapterCode);
                     lines.get(curLineNum + 1).add("ó");
                 }
@@ -199,6 +267,12 @@ public class MainWindow extends Application {
                 lines.get(curLineNum - 1).add(verseWord.getCode(fontVersion));
             }
         }
+
+        int chapterId = page.getVerses().getFirst().getChapter_id();
+        pageNumber.addListener((observable, old, newValue) -> {
+            chaptersList.getSelectionModel().select(chapterId - 1);
+        });
+        pageNumber.set(newPageNumber);
         return lines;
     }
 
