@@ -1,16 +1,10 @@
 package org.jquran.jquran;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import atlantafx.base.controls.ProgressSliderSkin;
 import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.css.Style;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -25,17 +19,13 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material.Material;
 
 public class MediaControl extends BorderPane {
-    private MediaPlayer mp;
+    private final MediaPlayer mp;
     private ArrayList<MediaPlayer> mpl;
     private MediaView mediaView;
-    private final boolean repeat = false;
     private boolean stopRequested = false;
     private boolean atEndOfMedia = false;
     private Duration duration;
@@ -44,7 +34,7 @@ public class MediaControl extends BorderPane {
     private Slider volumeSlider;
     private HBox mediaBar;
     private int i = 0;
-    private Pane mvPane;
+    private final Pane mvPane;
     private Button playButton;
     private Label spacer;
     private Label timeLabel;
@@ -105,8 +95,8 @@ public class MediaControl extends BorderPane {
 
         mediaBar.getChildren().add(volumeSlider);
 
-        playButton.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
+        playButton.setOnAction(e-> {
+
                 Status status = mp.getStatus();
 
                 if (status == Status.UNKNOWN || status == Status.HALTED) {
@@ -125,89 +115,70 @@ public class MediaControl extends BorderPane {
                     mp.play();
                 } else {
                     mp.pause();
-                }
             }
         });
 
-        mp.currentTimeProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                updateValues(mp);
+        mp.currentTimeProperty().addListener(ov -> updateValues(mp));
+
+        mp.setOnPlaying(() -> {
+            if (stopRequested) {
+                mp.pause();
+                stopRequested = false;
+            } else {
+                playButton.setGraphic(new FontIcon(Material.PAUSE));
             }
         });
 
-        mp.setOnPlaying(new Runnable() {
-            public void run() {
-                if (stopRequested) {
-                    mp.pause();
-                    stopRequested = false;
-                } else {
-                    playButton.setGraphic(new FontIcon(Material.PAUSE));
-                }
-            }
+        mp.setOnPaused(() -> {
+            System.out.println("onPaused");
+            playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
         });
 
-        mp.setOnPaused(new Runnable() {
-            public void run() {
-                System.out.println("onPaused");
+        mp.setOnReady(() -> {
+            duration = mp.getMedia().getDuration();
+            updateValues(mp);
+        });
+
+        mp.setOnEndOfMedia(() -> {
+            if (i == mpl.size() - 1) {
                 playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
+                stopRequested = true;
+                atEndOfMedia = true;
+            } else {
+                mpl.removeFirst();
+                setEnd(mpl);
             }
         });
 
-        mp.setOnReady(new Runnable() {
-            public void run() {
-                duration = mp.getMedia().getDuration();
-                updateValues(mp);
+        timeSlider.valueProperty().addListener(ov -> {
+            if (timeSlider.isValueChanging()) {
+                // multiply duration by percentage calculated by slider position
+                mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
             }
         });
 
-        mp.setOnEndOfMedia(new Runnable() {
-            public void run() {
-                if (i == mpl.size() - 1) {
-                    playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
-                    stopRequested = true;
-                    atEndOfMedia = true;
-                } else {
-                    mpl.remove(0);
-                    setEnd(mpl);
-                }
-            }
-        });
-
-        timeSlider.valueProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                if (timeSlider.isValueChanging()) {
-                    // multiply duration by percentage calculated by slider position
-                    mp.seek(duration.multiply(timeSlider.getValue() / 100.0));
-                }
-            }
-        });
-
-        volumeSlider.valueProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                if (volumeSlider.isValueChanging()) {
-                    mp.setVolume(volumeSlider.getValue() / 100.0);
-                }
+        volumeSlider.valueProperty().addListener(ov -> {
+            if (volumeSlider.isValueChanging()) {
+                mp.setVolume(volumeSlider.getValue() / 100.0);
             }
         });
     }
 
     protected void updateValues(MediaPlayer mp) {
         if (playTime != null && timeSlider != null && volumeSlider != null) {
-            Platform.runLater(new Runnable() {
-                public void run() {
-                    Duration currentTime = mp.getCurrentTime();
-                    playTime.setText(formatTime(currentTime, duration));
-                    timeSlider.setDisable(duration.isUnknown());
-                    if (!timeSlider.isDisabled()
-                            && duration.greaterThan(Duration.ZERO)
-                            && !timeSlider.isValueChanging()) {
-                        timeSlider.setValue(currentTime.divide(duration).toMillis()
-                                * 100.0);
-                    }
-                    if (!volumeSlider.isValueChanging()) {
-                        volumeSlider.setValue((int) Math.round(mp.getVolume()
-                                * 100));
-                    }
+            Platform.runLater(() -> {
+                Duration currentTime = mp.getCurrentTime();
+                playTime.setText(formatTime(currentTime, duration));
+                timeSlider.setDisable(duration.isUnknown());
+                if (!timeSlider.isDisabled()
+                        && duration.greaterThan(Duration.ZERO)
+                        && !timeSlider.isValueChanging()) {
+                    timeSlider.setValue(currentTime.divide(duration).toMillis()
+                            * 100.0);
+                }
+                if (!volumeSlider.isValueChanging()) {
+                    volumeSlider.setValue((int) Math.round(mp.getVolume()
+                            * 100));
                 }
             });
         }
@@ -253,9 +224,8 @@ public class MediaControl extends BorderPane {
     }
 
     private void setEnd(ArrayList<MediaPlayer> mpl) {
-        ArrayList<MediaPlayer> thisMpl = mpl;
 
-        mediaView = new MediaView(thisMpl.get(0));
+        mediaView = new MediaView(mpl.getFirst());
         mvPane.getChildren().setAll(mediaView);
         setCenter(mvPane);
 
@@ -305,88 +275,70 @@ public class MediaControl extends BorderPane {
 
         mediaBar.getChildren().add(volumeSlider);
 
-        playButton.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                Status status = thisMpl.get(0).getStatus();
+        playButton.setOnAction(e -> {
+            Status status = mpl.getFirst().getStatus();
 
-                if (status == Status.UNKNOWN || status == Status.HALTED) {
-                    // don't do anything in these states
-                    return;
+            if (status == Status.UNKNOWN || status == Status.HALTED) {
+                // don't do anything in these states
+                return;
+            }
+
+            if (status == Status.PAUSED
+                    || status == Status.READY
+                    || status == Status.STOPPED) {
+                // rewind the movie if we're sitting at the end
+                if (atEndOfMedia) {
+                    mpl.getFirst().seek(mpl.getFirst().getStartTime());
+                    atEndOfMedia = false;
                 }
-
-                if (status == Status.PAUSED
-                        || status == Status.READY
-                        || status == Status.STOPPED) {
-                    // rewind the movie if we're sitting at the end
-                    if (atEndOfMedia) {
-                        thisMpl.get(0).seek(thisMpl.get(0).getStartTime());
-                        atEndOfMedia = false;
-                    }
-                    thisMpl.get(0).play();
-                    playButton.setGraphic(new FontIcon(Material.PAUSE));
-                } else {
-                    thisMpl.get(0).pause();
-                }
+                mpl.getFirst().play();
+                playButton.setGraphic(new FontIcon(Material.PAUSE));
+            } else {
+                mpl.getFirst().pause();
             }
         });
 
-        duration = thisMpl.get(0).getMedia().getDuration();
-        updateValues(thisMpl.get(0));
-        thisMpl.get(0).play();
+        duration = mpl.getFirst().getMedia().getDuration();
+        updateValues(mpl.getFirst());
+        mpl.getFirst().play();
 
-        thisMpl.get(0).currentTimeProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                updateValues(thisMpl.get(0));
-            }
-        });
+        mpl.getFirst().currentTimeProperty().addListener(ov -> updateValues(mpl.getFirst()));
 
-        thisMpl.get(0).setOnPlaying(new Runnable() {
-            public void run() {
-                if (stopRequested) {
-                    thisMpl.get(0).pause();
-                    stopRequested = false;
-                } else {
-
-                }
-            }
-        });
-
-        thisMpl.get(0).setOnPaused(new Runnable() {
-            public void run() {
-                playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
-                System.out.println("onPaused");
+        mpl.getFirst().setOnPlaying(() -> {
+            if (stopRequested) {
+                mpl.getFirst().pause();
+                stopRequested = false;
+            } else {
 
             }
         });
 
-        thisMpl.get(0).setOnReady(new Runnable() {
-            public void run() {
+        mpl.getFirst().setOnPaused(() -> {
+            playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
+            System.out.println("onPaused");
 
-            }
-        });
-        thisMpl.get(0).setOnEndOfMedia(new Runnable() {
-            public void run() {
-                if (mpl.size() > 0) {
-                    thisMpl.remove(0);
-                    setEnd(thisMpl);
-                }
-            }
         });
 
-        timeSlider.valueProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                if (timeSlider.isValueChanging()) {
-                    // multiply duration by percentage calculated by slider position
-                    thisMpl.get(0).seek(duration.multiply(timeSlider.getValue() / 100.0));
-                }
+        mpl.getFirst().setOnReady(() -> {
+
+        });
+        mpl.getFirst().setOnEndOfMedia(() -> {
+            if (!mpl.isEmpty()) {
+                mpl.removeFirst();
+                setEnd(mpl);
             }
         });
 
-        volumeSlider.valueProperty().addListener(new InvalidationListener() {
-            public void invalidated(Observable ov) {
-                if (volumeSlider.isValueChanging()) {
-                    thisMpl.get(0).setVolume(volumeSlider.getValue() / 100.0);
-                }
+        timeSlider.valueProperty().addListener(ov -> {
+            if (timeSlider.isValueChanging()) {
+                // multiply duration by percentage calculated by slider position
+                mpl.getFirst().seek(duration.multiply(timeSlider.getValue() / 100.0));
+            }
+        });
+
+        volumeSlider.valueProperty().addListener(ov -> {
+            if (volumeSlider.isValueChanging()) {
+                mpl.getFirst().setVolume(volumeSlider.getValue() / 100.0);
             }
         });
     }
