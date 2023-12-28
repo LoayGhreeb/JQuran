@@ -1,12 +1,14 @@
 package org.jquran.jquran;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import atlantafx.base.controls.ProgressSliderSkin;
 import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
+import javafx.css.Style;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -23,6 +25,9 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Duration;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 
 public class MediaControl extends BorderPane {
     private MediaPlayer mp;

@@ -2,6 +2,7 @@
 /*Background color: #1f2125*/
 /*Secondary color : #44a3aa*/
 
-Text:hover{
+#verse:hover{
     -fx-fill: #22cbd8;
+    -fx-background-color: rgba(32, 37, 37, 0.4);
 }
