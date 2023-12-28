@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 
 public class MainWindow extends Application {
     private static final double PERCENTAGE = 0.9;
-    private static final int fontSize = 25;
+    private static final int fontSize = 33;
     private static int fontVersion = 1;
     private static TextFlow pageTextFlow;
     private static ListView<Chapter> chaptersList;
-    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(50);
+    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(1);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -237,7 +237,7 @@ public class MainWindow extends Application {
             File f = new File("src/main/resources/org/jquran/jquran/Quran_Audio/"
                     + reciterComboBox.getSelectionModel().getSelectedItem() + "/");
             File[] l = f.listFiles();
-            List<File> lf = new ArrayList<File>();
+            List<File> lf = new ArrayList<>();
             if (l == null) {
                 var alert = new Alert(AlertType.ERROR);
                 alert.setTitle("Exception Dialog");
@@ -332,7 +332,8 @@ public class MainWindow extends Application {
                     surahName.setFont(Query.loadSurahNameFont(30));
                     // Surah name box
                     Text box = new Text("ò");
-                    box.setFont(Query.loadSurahNameFont(45));
+                    if (fontVersion == 1) box.setFont(Query.loadSurahNameFont(60));
+                    else box.setFont(Query.loadSurahNameFont(65));
                     StackPane stackPane = new StackPane();
                     stackPane.setAlignment(Pos.CENTER);
                     StackPane.setMargin(surahName, new Insets(13, 25, 0, 25));
