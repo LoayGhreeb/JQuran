@@ -270,7 +270,6 @@ public class MainWindow extends Application {
         // Download audio Stage
         Button readerBtn = new Button("القارئ");
         readerBtn.setOnAction(e -> DownloadAudio.display());
-        root.setBottom(readerBtn);
 
         // Set Mushaf layout
         pageTextFlow = new TextFlow();
