@@ -4,4 +4,9 @@
 
 Text:hover{
     -fx-fill: #22cbd8;
+    -fx-background-color: rgba(32, 37, 37, 0.4);
+}
+
+#surahName:hover {
+    -fx-fill: inherit;
 }

@@ -34,7 +34,7 @@ public final class DownloadAudio {
 
     private static final double PERCENTAGE = 0.6;
 
-    public static void display() throws IOException {
+    public static void display() {
         Stage downloadStage = new Stage();
 
         double screenWidth = Screen.getPrimary().getBounds().getWidth();
@@ -131,7 +131,7 @@ public final class DownloadAudio {
         });
         VBox vBox = new VBox();
         vBox.getChildren().addAll(reciterListView, surahListView, hBox);
-        BorderPane borderPane= new BorderPane();
+        BorderPane borderPane = new BorderPane();
         borderPane.setCenter(vBox);
         downloadStage.setTitle("اختر السورة والقارئ");
         downloadStage.setScene(new Scene(borderPane));
