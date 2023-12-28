@@ -27,7 +27,6 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -165,7 +164,12 @@ public class MainWindow extends Application {
 
         // text filed listener to handel search queries
         searchField.textProperty().addListener((observable, oldText, newText) -> {
-            chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
+            chaptersList
+                    .getItems().setAll(
+                            chapters.stream()
+                                    .filter(chapter -> chapter.getName_arabic().contains(newText)
+                                            || String.valueOf(chapter.getId()).contains(newText))
+                                    .collect(Collectors.toList()));
         });
 
         // Set Mushaf layout
@@ -246,11 +250,34 @@ public class MainWindow extends Application {
 
                 return;
             }
-            Collections.addAll(lf, l);
+            for (File x : l) {
+                System.out.println(String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1));
+                System.out.println(x.getName()
+                        .toString().substring(0, 3));
+                System.out.println(String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1)
+                        .equals(x.getName()
+                                .toString().substring(0, 3)));
+                if (String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1)
+                        .equals(x.getName()
+                                .toString().substring(0, 3))) {
+                    lf.add(x);
+                }
+            }
+            if (lf.isEmpty()) {
+                var alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Exception Dialog");
+                alert.setHeaderText("No files found");
+                alert.setContentText("you have to download the audio files first");
+
+                alert.initOwner(root.getScene().getWindow());
+                alert.showAndWait();
+
+                return;
+            }
             int i = 0;
             ArrayList<MediaPlayer> players = new ArrayList<>();
             Collections.sort(lf);
-            while (i < l.length) {
+            while (i < lf.size()) {
                 MediaPlayer mp = new MediaPlayer(new Media(lf.get(i).toURI().toString()));
                 players.add(mp);
                 i++;
@@ -266,7 +293,7 @@ public class MainWindow extends Application {
             primaryStage.setWidth(screenWidth * PERCENTAGE);
         });
 
-        Button btn = new Button("القارئ");
+        Button btn = new Button("ادارة التحميلات");
         btn.setOnAction(e -> {
             try {
                 DownloadAudio.display();
@@ -278,8 +305,6 @@ public class MainWindow extends Application {
         hB.setAlignment(Pos.CENTER);
         root.setBottom(hB);
         // Download audio Stage
-        Button readerBtn = new Button("القارئ");
-        readerBtn.setOnAction(e -> DownloadAudio.display());
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
@@ -305,7 +330,8 @@ public class MainWindow extends Application {
 
     public void setCurrentPage(int newPageNumber) throws Exception {
         List<List<String>> lines = getFormattedPage(newPageNumber);
-        if (lines == null) return;
+        if (lines == null)
+            return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
         pageTextFlow.getChildren().clear();
         for (List<String> line : lines) {
@@ -368,7 +394,8 @@ public class MainWindow extends Application {
                     lines.get(curLineNum + 1).add("ó");
                 }
             }
-            // handle if the last line of the page at line 14 -> add box with the next surah name
+            // handle if the last line of the page at line 14 -> add box with the next surah
+            // name
 
             // Add words to the curLine
             for (Word verseWord : verseWords) {
