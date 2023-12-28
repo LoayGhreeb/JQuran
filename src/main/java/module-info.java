@@ -7,6 +7,8 @@ module org.jquran.jquran {
     requires atlantafx.base;
     requires org.xerial.sqlitejdbc;
     requires org.apache.commons.lang3;
+    requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.material;
 
     opens org.jquran.jquran to javafx.fxml;
 

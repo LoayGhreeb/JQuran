@@ -28,6 +28,8 @@ import javafx.util.Duration;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material.Material;
 
 public class MediaControl extends BorderPane {
     private MediaPlayer mp;
@@ -62,7 +64,7 @@ public class MediaControl extends BorderPane {
         mediaBar.setPadding(new Insets(5, 10, 5, 10));
         BorderPane.setAlignment(mediaBar, Pos.CENTER);
 
-        playButton = new Button(">");
+        playButton = new Button(null, new FontIcon(Material.PLAY_ARROW));
         mediaBar.getChildren().add(playButton);
         setBottom(mediaBar);
 
@@ -139,7 +141,7 @@ public class MediaControl extends BorderPane {
                     mp.pause();
                     stopRequested = false;
                 } else {
-                    playButton.setText("||");
+                    playButton.setGraphic(new FontIcon(Material.PAUSE));
                 }
             }
         });
@@ -147,7 +149,7 @@ public class MediaControl extends BorderPane {
         mp.setOnPaused(new Runnable() {
             public void run() {
                 System.out.println("onPaused");
-                playButton.setText(">");
+                playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
             }
         });
 
@@ -161,7 +163,7 @@ public class MediaControl extends BorderPane {
         mp.setOnEndOfMedia(new Runnable() {
             public void run() {
                 if (i == mpl.size() - 1) {
-                    playButton.setText(">");
+                    playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
                     stopRequested = true;
                     atEndOfMedia = true;
                 } else {
@@ -262,7 +264,7 @@ public class MediaControl extends BorderPane {
         mediaBar.setPadding(new Insets(5, 10, 5, 10));
         BorderPane.setAlignment(mediaBar, Pos.CENTER);
 
-        playButton = new Button(">");
+        playButton = new Button(null, new FontIcon(Material.PAUSE));
         mediaBar.getChildren().add(playButton);
         setBottom(mediaBar);
 
@@ -321,6 +323,7 @@ public class MediaControl extends BorderPane {
                         atEndOfMedia = false;
                     }
                     thisMpl.get(0).play();
+                    playButton.setGraphic(new FontIcon(Material.PAUSE));
                 } else {
                     thisMpl.get(0).pause();
                 }
@@ -350,6 +353,7 @@ public class MediaControl extends BorderPane {
 
         thisMpl.get(0).setOnPaused(new Runnable() {
             public void run() {
+                playButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
                 System.out.println("onPaused");
 
             }

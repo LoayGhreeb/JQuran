@@ -1,11 +1,9 @@
 package org.jquran.jquran;
 
-import atlantafx.base.controls.Notification;
 import atlantafx.base.controls.ToggleSwitch;
 import atlantafx.base.theme.CupertinoDark;
 import atlantafx.base.theme.CupertinoLight;
 import atlantafx.base.theme.Styles;
-import atlantafx.base.util.Animations;
 import javafx.application.Application;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Insets;
@@ -17,35 +15,21 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -170,6 +154,35 @@ public class MainWindow extends Application {
         chaptersPane.getChildren().add(chaptersList);
         chaptersList.getSelectionModel().select(pageNumber.get() - 1);
 
+        chaptersList.setOnMouseClicked(event -> {
+            try {
+                setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // text filed listener to handel search queries
+        searchField.textProperty().addListener((observable, oldText, newText) -> {
+            chaptersList
+                    .getItems().setAll(
+                            chapters.stream()
+                                    .filter(chapter -> chapter.getName_arabic().contains(newText)
+                                            || String.valueOf(chapter.getId()).contains(newText))
+                                    .collect(Collectors.toList()));
+        });
+
+        // Set Mushaf layout
+        pageTextFlow = new TextFlow();
+        pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        pageTextFlow.setTextAlignment(TextAlignment.CENTER);
+        pageTextFlow.setMinWidth(500);
+        ScrollPane scrollPane = new ScrollPane(pageTextFlow);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        root.setCenter(scrollPane);
+        setCurrentPage(pageNumber.get());
+
         // audio player
         HBox hB = new HBox();
         var reciterComboBox = new ComboBox<String>();
@@ -197,7 +210,7 @@ public class MainWindow extends Application {
         start.setOnAction(e -> {
             File f = new File("src/main/resources/org/jquran/jquran/Quran_Audio/"
                     + reciterComboBox.getSelectionModel().getSelectedItem() + "/");
-            File l[] = f.listFiles();
+            File[] l = f.listFiles();
             List<File> lf = new ArrayList<File>();
             if (l == null) {
                 var alert = new Alert(AlertType.ERROR);
@@ -235,7 +248,7 @@ public class MainWindow extends Application {
                 return;
             }
             int i = 0;
-            ArrayList players = new ArrayList<MediaPlayer>();
+            ArrayList<MediaPlayer> players = new ArrayList<>();
             Collections.sort(lf);
             while (i < lf.size()) {
                 MediaPlayer mp = new MediaPlayer(new Media(lf.get(i).toURI().toString()));
@@ -253,31 +266,6 @@ public class MainWindow extends Application {
             primaryStage.setWidth(screenWidth * PERCENTAGE);
         });
 
-        chaptersList.setOnMouseClicked(event -> {
-            try {
-                setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        // text filed listener to handel search queries
-        searchField.textProperty().addListener((observable, oldText, newText) ->
-
-        {
-            chaptersList
-                    .getItems().setAll(
-                            chapters.stream()
-                                    .filter(chapter -> chapter.getName_arabic().contains(newText)
-                                            || String.valueOf(chapter.getId()).contains(newText))
-                                    .collect(Collectors.toList()));
-        });
-
-        VBox temp = new VBox(
-                10);
-        temp.setPrefHeight(100);
-        temp.setPrefWidth(100);
-        temp.getChildren().add(new Button("Ok"));
-        root.setRight(temp);
         Button btn = new Button("القارئ");
         btn.setOnAction(e -> {
             try {
@@ -291,20 +279,8 @@ public class MainWindow extends Application {
         root.setBottom(hB);
         // Download audio Stage
 
-        // Set Mushaf layout
-        pageTextFlow = new TextFlow();
-        pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
-        pageTextFlow.setTextAlignment(TextAlignment.CENTER);
-        pageTextFlow.setMinWidth(500);
-        ScrollPane scrollPane = new ScrollPane(pageTextFlow);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        root.setCenter(scrollPane);
-        setCurrentPage(pageNumber.get());
-
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
-
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
             if (e.getCode() == KeyCode.LEFT) {
                 try {
@@ -327,8 +303,6 @@ public class MainWindow extends Application {
 
     public void setCurrentPage(int newPageNumber) throws Exception {
         List<List<String>> lines = getFormattedPage(newPageNumber);
-        if (lines == null)
-            return;
         if (lines == null)
             return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
@@ -371,8 +345,6 @@ public class MainWindow extends Application {
 
         int curLineNum = 0;
         Page page = Query.loadPage(newPageNumber, fontVersion);
-        if (page == null)
-            return null;
         if (page == null)
             return null;
         List<Verse> pageVerses = page.getVerses();
