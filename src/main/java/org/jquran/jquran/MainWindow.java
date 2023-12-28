@@ -232,7 +232,7 @@ public class MainWindow extends Application {
         }
         surahComboBox.getSelectionModel().selectFirst();
 
-        Button start = new Button("تشغيل");
+        Button start = new Button("تحديد");
         start.setOnAction(e -> {
             File f = new File("src/main/resources/org/jquran/jquran/Quran_Audio/"
                     + reciterComboBox.getSelectionModel().getSelectedItem() + "/");
