@@ -16,6 +16,16 @@ JQuran is a Java-based Quran application built with JavaFX.
 
 - **Word-by-Word Selection**: Deepen your understanding by selecting and focusing on individual words in the Quranic text.
 
+## Screenshots
+
+### Font V1
+
+![img.png](screenshots/v1%20dark.png)
+![img.png](screenshots/v1%20light.png)
+
+### Font V2
+![img.png](screenshots/v2%20dark.png)
+![img.png](screenshots/v2%20light.png)
 
 ## Credits
 
