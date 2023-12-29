@@ -31,5 +31,5 @@ JQuran is a Java-based Quran application built with JavaFX.
 
 This project is made possible by the following resources:
 - **Atlantafx**: Used for theming and styling. Learn more at [Atlantafx GitHub](https://github.com/mkpaz/atlantafx).
-- **Quran.com API:** Provides audio recitations and Quran text data. Explore the [Quran.com API Documentation](https://api-docs.quran.com/docs/category/oauth2open-id-connect).
+- **Quran.com API:** Provides audio recitations and Quran text data. Explore the [Quran.com API Documentation](https://api-docs.quran.com/docs/category/quran.com-api).
 - **King Fahd Quran Complex Fonts**: Utilize Quranic fonts from the [Quran.com-frontend-next repository](https://github.com/quran/quran.com-frontend-next/tree/master/public/fonts/quran/hafs).
