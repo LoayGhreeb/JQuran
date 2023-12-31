@@ -28,7 +28,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material.Material;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,14 +37,25 @@ public class MainWindow extends Application {
     private static final double PERCENTAGE = 0.9;
     private static final int fontSize = 33;
     private static int fontVersion = 1;
+    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(76);
     private static TextFlow pageTextFlow;
+    private static MediaPlayer mediaPlayer;
+    private static List<Reciter> reciters;
     private static List<Chapter> chapters;
     private static ListView<Chapter> chaptersList;
-    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(76);
 
-    private static MediaPlayer mediaPlayer;
+    private static Slider timeSlider;
+    private static Label currentTimeLabel;
+    private static Label totalTimeLabel;
+    private static ToggleButton playPauseButton;
+    private static AtomicBoolean isSeeking;
+    private static Slider volumeSlider;
+    private static ToggleButton muteButton;
+    private static final  FontIcon pauseFontIcon = new FontIcon(Material.PAUSE);
+    private static final  FontIcon playArrowFontIcon = new FontIcon(Material.PLAY_ARROW);
+
     @Override
-    public void start(Stage primaryStage) throws URISyntaxException {
+    public void start(Stage primaryStage) {
         Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
         // Set the stage size
         double screenWidth = Screen.getPrimary().getBounds().getWidth();
@@ -190,17 +200,12 @@ public class MainWindow extends Application {
         audioPlayer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         root.setBottom(audioPlayer);
 
-        // media player
-        Media media = Query.loadMedia(7, 1);
-        if(media != null) mediaPlayer = new MediaPlayer(media);
-        else return;
         // reciter combo boxes
-        List<Reciter> reciters = Query.loadReciters();
+        reciters = Query.loadReciters();
         ComboBox<Reciter> reciterComboBox = new ComboBox<>();
         reciterComboBox.getItems().addAll(reciters);
         reciterComboBox.getSelectionModel().select(6);
         reciterComboBox.setPrefWidth(300);
-
 
         // surah combo boxes
         ComboBox<Chapter> surahComboBox = new ComboBox<>();
@@ -208,23 +213,89 @@ public class MainWindow extends Application {
         surahComboBox.getSelectionModel().selectFirst();
         surahComboBox.setPrefWidth(150);
 
+        reciterComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue)
+                setupMediaPlayer(newValue.getId(), surahComboBox.getSelectionModel().getSelectedItem().getId());
+
+
+        });
+
+        surahComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue)
+                setupMediaPlayer(reciterComboBox.getSelectionModel().getSelectedItem().getId(), newValue.getId());
+
+        });
 
         // time slider
-        Slider timeSlider = new Slider();
+        timeSlider = new Slider();
         timeSlider.setSkin(new ProgressSliderSkin(timeSlider));
         timeSlider.getStyleClass().add(Styles.SMALL);
         timeSlider.setMinWidth(300);
 
         // time labels, play & pause button
-        Label currentTimeLabel = new Label();
-        Label totalTimeLabel = new Label("00:00:00");
-        ToggleButton playPauseButton = new ToggleButton(null, new FontIcon(Material.PLAY_ARROW));
+        currentTimeLabel = new Label();
+        totalTimeLabel = new Label("00:00:00");
+
+        playPauseButton = new ToggleButton(null, playArrowFontIcon);
+
+        // volume slider
+        volumeSlider = new Slider(0, 1, 1);
+        volumeSlider.getStyleClass().add(Styles.SMALL);
+        volumeSlider.setSkin(new ProgressSliderSkin(volumeSlider));
+        volumeSlider.setMinWidth(100);
+
+        // muteButton button
+        muteButton = new ToggleButton(null, new FontIcon(Material.VOLUME_UP));
+
+        // disable muteButton button if volume is 0 & vice versa
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() == 0) {
+                muteButton.setGraphic(new FontIcon(Material.VOLUME_OFF));
+                muteButton.setSelected(true);
+                muteButton.setDisable(true);
+            } else {
+                muteButton.setGraphic(new FontIcon(Material.VOLUME_UP));
+                muteButton.setSelected(false);
+                muteButton.setDisable(false);
+            }
+        });
+
+        // download manager button
+        Button downloadManager = new Button( "ادارة التحميلات", new FontIcon(Material.CLOUD_DOWNLOAD));
+        downloadManager.setOnAction(e -> DownloadAudio.display());
+
+        setupMediaPlayer(7, 1);
+        audioPlayer.getChildren().addAll(reciterComboBox, surahComboBox, playPauseButton, currentTimeLabel, timeSlider, totalTimeLabel, downloadManager, muteButton, volumeSlider);
+
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
+            if (e.getCode() == KeyCode.LEFT) setCurrentPage(pageNumber.get() + 1);
+            else if (e.getCode() == KeyCode.RIGHT) setCurrentPage(pageNumber.get() - 1);
+        });
+        primaryStage.setTitle("JQuran");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private void setupMediaPlayer(int reciterId, int surahId){
+        // media player
+        Media media = Query.loadMedia(reciterId, surahId);
+        if (media == null) return;
+        if(mediaPlayer != null) {
+            playPauseButton.setSelected(false);
+            mediaPlayer.dispose();
+        }
+
+        mediaPlayer = new MediaPlayer(media);
 
         // set the total time label when the media is ready
         mediaPlayer.setOnReady(() -> {
             totalTimeLabel.setText(String.format("%02d:%02d:%02d", (int)mediaPlayer.getTotalDuration().toHours(), (int)mediaPlayer.getTotalDuration().toMinutes() % 60, (int)mediaPlayer.getTotalDuration().toSeconds() % 60));
             currentTimeLabel.setText("00:00:00");
+            timeSlider.setValue(0);
             timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
+            setCurrentPage(chapters.get(surahId - 1).getPages().getFirst());
         });
 
         // set the play & pause button to pause when the media is finished
@@ -236,17 +307,16 @@ public class MainWindow extends Application {
         // play & pause button listener
         playPauseButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
+                playPauseButton.setGraphic(pauseFontIcon);
                 mediaPlayer.play();
-                totalTimeLabel.setText(String.format("%02d:%02d:%02d", (int)mediaPlayer.getTotalDuration().toHours(), (int)mediaPlayer.getTotalDuration().toMinutes() % 60, (int)mediaPlayer.getTotalDuration().toSeconds() % 60));
             } else {
-                playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
+                playPauseButton.setGraphic(playArrowFontIcon);
                 mediaPlayer.pause();
             }
         });
 
         // handle seeking and update the current media time, used atomic boolean to executed as a single, indivisible operation without interference from other threads.
-        AtomicBoolean isSeeking = new AtomicBoolean(false);
+        isSeeking = new AtomicBoolean(false);
 
         timeSlider.setOnMousePressed(e -> isSeeking.set(true));
 
@@ -271,16 +341,9 @@ public class MainWindow extends Application {
             }
         });
 
-        // volume slider
-        Slider volumeSlider = new Slider(0, 1, 1);
-        volumeSlider.getStyleClass().add(Styles.SMALL);
-        volumeSlider.setSkin(new ProgressSliderSkin(volumeSlider));
-        volumeSlider.setMinWidth(100);
-
         mediaPlayer.volumeProperty().bind(volumeSlider.valueProperty());
 
         // muteButton button
-        ToggleButton muteButton = new ToggleButton(null, new FontIcon(Material.VOLUME_UP));
         muteButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 muteButton.setGraphic(new FontIcon(Material.VOLUME_OFF));
@@ -290,62 +353,9 @@ public class MainWindow extends Application {
                 mediaPlayer.setMute(false);
             }
         });
-
-        // disable muteButton button if volume is 0 & vice versa
-        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.doubleValue() == 0) {
-                muteButton.setGraphic(new FontIcon(Material.VOLUME_OFF));
-                muteButton.setSelected(true);
-                muteButton.setDisable(true);
-            } else {
-                muteButton.setGraphic(new FontIcon(Material.VOLUME_UP));
-                muteButton.setSelected(false);
-                muteButton.setDisable(false);
-            }
-        });
-
-        /*
-        reciterComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                Media newMedia = Query.loadMedia(newValue.getId(), surahComboBox.getSelectionModel().getSelectedItem().getId());
-                if(newMedia != null) {
-                    mediaPlayer.stop();
-                    playPauseButton.setSelected(false);
-                    mediaPlayer = new MediaPlayer(newMedia);
-                }
-            }
-        });
-
-        surahComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                Media newMedia = Query.loadMedia(reciterComboBox.getSelectionModel().getSelectedItem().getId(), newValue.getId());
-                if(newMedia != null) {
-                    mediaPlayer.stop();
-                    playPauseButton.setSelected(false);
-                    mediaPlayer = new MediaPlayer(newMedia);
-                }
-            }
-        });
-        */
-
-        // download manager button
-        Button downloadManager = new Button( "ادارة التحميلات", new FontIcon(Material.CLOUD_DOWNLOAD));
-        downloadManager.setOnAction(e -> DownloadAudio.display());
-
-        audioPlayer.getChildren().addAll(reciterComboBox, surahComboBox, playPauseButton, currentTimeLabel, timeSlider, totalTimeLabel, downloadManager, muteButton, volumeSlider);
-
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
-        scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
-            if (e.getCode() == KeyCode.LEFT) setCurrentPage(pageNumber.get() + 1);
-            else if (e.getCode() == KeyCode.RIGHT) setCurrentPage(pageNumber.get() - 1);
-        });
-        primaryStage.setTitle("JQuran");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
-    public void setCurrentPage(int newPageNumber) {
+    private void setCurrentPage(int newPageNumber) {
         List<List<String>> lines = getFormattedPage(newPageNumber);
         if (lines == null) return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
@@ -382,7 +392,7 @@ public class MainWindow extends Application {
         }
     }
 
-    public List<List<String>> getFormattedPage(int newPageNumber) {
+    private List<List<String>> getFormattedPage(int newPageNumber) {
         List<List<String>> lines = new ArrayList<>();
         for (int i = 0; i < 15; i++)
             lines.add(new ArrayList<>());
