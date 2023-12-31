@@ -1,17 +1,16 @@
 package org.jquran.jquran;
 
+import atlantafx.base.controls.CustomTextField;
+import atlantafx.base.controls.ProgressSliderSkin;
 import atlantafx.base.controls.ToggleSwitch;
 import atlantafx.base.theme.CupertinoDark;
 import atlantafx.base.theme.CupertinoLight;
 import atlantafx.base.theme.Styles;
 import javafx.application.Application;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.geometry.Insets;
-import javafx.geometry.NodeOrientation;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -26,13 +25,13 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material.Material;
-
-import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class MainWindow extends Application {
@@ -40,11 +39,13 @@ public class MainWindow extends Application {
     private static final int fontSize = 33;
     private static int fontVersion = 1;
     private static TextFlow pageTextFlow;
+    private static List<Chapter> chapters;
     private static ListView<Chapter> chaptersList;
-    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(1);
+    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(76);
 
+    private static MediaPlayer mediaPlayer;
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) throws URISyntaxException {
         Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
         // Set the stage size
         double screenWidth = Screen.getPrimary().getBounds().getWidth();
@@ -104,22 +105,14 @@ public class MainWindow extends Application {
 
         v1.selectedProperty().addListener((observable, oldValue, newValue) -> {
             fontVersion = 1;
-            try {
-                setCurrentPage(pageNumber.get());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            setCurrentPage(pageNumber.get());
             v2.setDisable(false);
             v1.setDisable(true);
         });
 
         v2.selectedProperty().addListener((observable, oldValue, newValue) -> {
             fontVersion = 2;
-            try {
-                setCurrentPage(pageNumber.get());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            setCurrentPage(pageNumber.get());
             v1.setDisable(false);
             v2.setDisable(true);
         });
@@ -142,8 +135,9 @@ public class MainWindow extends Application {
 
         // text field to search for chapter name or chapter number & add it to
         // chapterPane
-        TextField searchField = new TextField();
+        CustomTextField searchField = new CustomTextField();
         searchField.setPromptText("اسم السورة");
+        searchField.setLeft(new FontIcon(Material.SEARCH));
         chaptersPane.getChildren().add(searchField);
 
         // chaptersList to list all chapters
@@ -151,23 +145,15 @@ public class MainWindow extends Application {
         chaptersList.prefHeightProperty().bind(chaptersPane.heightProperty());
 
         // get & list all chapters
-        List<Chapter> chapters = Query.loadChapters();
+        chapters = Query.loadChapters();
         chaptersList.getItems().addAll(chapters);
         chaptersPane.getChildren().add(chaptersList);
         chaptersList.getSelectionModel().select(pageNumber.get() - 1);
 
-        chaptersList.setOnMouseClicked(event -> {
-            try {
-                setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        chaptersList.setOnMouseClicked(event -> setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst()));
 
         // text filed listener to handel search queries
-        searchField.textProperty().addListener((observable, oldText, newText) -> {
-            chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList()));
-        });
+        searchField.textProperty().addListener((observable, oldText, newText) -> chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList())));
 
         // Set Mushaf layout
         BorderPane mushafLayout = new BorderPane();
@@ -184,23 +170,12 @@ public class MainWindow extends Application {
         setCurrentPage(pageNumber.get());
 
         Button nextButton = new Button(null,new FontIcon(Material.ARROW_LEFT));
-        nextButton.setOnAction(e -> {
-            try {
-                setCurrentPage(pageNumber.get() + 1);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        nextButton.setOnAction(e -> setCurrentPage(pageNumber.get() + 1));
 
         Button prevButton = new Button(null, new FontIcon(Material.ARROW_RIGHT));
-        prevButton.setOnAction(e -> {
-            try {
-                setCurrentPage(pageNumber.get() - 1);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        
+        prevButton.setOnAction(e -> setCurrentPage(pageNumber.get() - 1));
+
+        // Navigation buttons
         HBox navigationContainer = new HBox(10);
         navigationContainer.setPadding(new Insets(10));
         navigationContainer.setAlignment(Pos.CENTER);
@@ -208,117 +183,169 @@ public class MainWindow extends Application {
         mushafLayout.setBottom(navigationContainer);
 
         // audio player
-        HBox hB = new HBox();
-        hB.setPadding(new Insets(20));
-        hB.setSpacing(20);
-        var reciterComboBox = new ComboBox<String>();
+        HBox audioPlayer = new HBox();
+        audioPlayer.setPadding(new Insets(20));
+        audioPlayer.setSpacing(20);
+        audioPlayer.setAlignment(Pos.CENTER);
+        audioPlayer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        root.setBottom(audioPlayer);
+
+        // media player
+        Media media = Query.loadMedia(7, 1);
+        if(media != null) mediaPlayer = new MediaPlayer(media);
+        else return;
+        // reciter combo boxes
         List<Reciter> reciters = Query.loadReciters();
-        for (Reciter reciter : reciters) {
-            /// reciters name
-            String reciterSName = reciter.getTranslated_name().getName();
-            /// reciters style
-            String reciterStyle = reciter.getStyle();
-            if (reciterStyle == null)
-                reciterComboBox.getItems().add(reciterSName);
-            else
-                reciterComboBox.getItems().add(reciterSName + ' ' + reciterStyle);
-        }
-        reciterComboBox.getSelectionModel().selectFirst();
-        var surahComboBox = new ComboBox<String>();
-        for (Chapter chapter : chapters) {
-            /// Surah name
-            String surahName = chapter.getName_arabic();
-            surahComboBox.getItems().add(surahName);
-        }
+        ComboBox<Reciter> reciterComboBox = new ComboBox<>();
+        reciterComboBox.getItems().addAll(reciters);
+        reciterComboBox.getSelectionModel().select(6);
+        reciterComboBox.setPrefWidth(300);
+
+
+        // surah combo boxes
+        ComboBox<Chapter> surahComboBox = new ComboBox<>();
+        surahComboBox.getItems().addAll(chapters);
         surahComboBox.getSelectionModel().selectFirst();
+        surahComboBox.setPrefWidth(150);
 
-        Button start = new Button("تحديد");
-        start.setOnAction(e -> {
-            File f = new File("src/main/resources/org/jquran/jquran/Quran_Audio/"
-                    + reciterComboBox.getSelectionModel().getSelectedItem() + "/");
-            File[] l = f.listFiles();
-            List<File> lf = new ArrayList<>();
-            if (l == null) {
-                var alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Exception Dialog");
-                alert.setHeaderText("No files found");
-                alert.setContentText("you have to download the audio files first");
 
-                alert.initOwner(root.getScene().getWindow());
-                alert.showAndWait();
+        // time slider
+        Slider timeSlider = new Slider();
+        timeSlider.setSkin(new ProgressSliderSkin(timeSlider));
+        timeSlider.getStyleClass().add(Styles.SMALL);
+        timeSlider.setMinWidth(300);
 
-                return;
+        // time labels, play & pause button
+        Label currentTimeLabel = new Label();
+        Label totalTimeLabel = new Label("00:00:00");
+        ToggleButton playPauseButton = new ToggleButton(null, new FontIcon(Material.PLAY_ARROW));
+
+        // set the total time label when the media is ready
+        mediaPlayer.setOnReady(() -> {
+            totalTimeLabel.setText(String.format("%02d:%02d:%02d", (int)mediaPlayer.getTotalDuration().toHours(), (int)mediaPlayer.getTotalDuration().toMinutes() % 60, (int)mediaPlayer.getTotalDuration().toSeconds() % 60));
+            currentTimeLabel.setText("00:00:00");
+            timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
+        });
+
+        // set the play & pause button to pause when the media is finished
+        mediaPlayer.setOnEndOfMedia(() -> {
+            mediaPlayer.stop();
+            playPauseButton.setSelected(false);
+        });
+
+        // play & pause button listener
+        playPauseButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
+                mediaPlayer.play();
+                totalTimeLabel.setText(String.format("%02d:%02d:%02d", (int)mediaPlayer.getTotalDuration().toHours(), (int)mediaPlayer.getTotalDuration().toMinutes() % 60, (int)mediaPlayer.getTotalDuration().toSeconds() % 60));
+            } else {
+                playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
+                mediaPlayer.pause();
             }
-            for (File x : l) {
-                if (String.format("%03d", surahComboBox.getSelectionModel().getSelectedIndex() + 1).equals(x.getName().substring(0, 3))) {
-                    lf.add(x);
+        });
+
+        // handle seeking and update the current media time, used atomic boolean to executed as a single, indivisible operation without interference from other threads.
+        AtomicBoolean isSeeking = new AtomicBoolean(false);
+
+        timeSlider.setOnMousePressed(e -> isSeeking.set(true));
+
+        // update the current time label when the user drag the time slider
+        timeSlider.setOnMouseDragged(e -> currentTimeLabel.setText(String.format("%02d:%02d:%02d", (int)timeSlider.getValue() / 3600, (int)timeSlider.getValue() / 60 % 60, (int)timeSlider.getValue() % 60)));
+
+        // seek to the new time when the user release the mouse button
+        timeSlider.setOnMouseReleased(e -> {
+            if(isSeeking.get()) {
+                if(playPauseButton.isSelected()) mediaPlayer.play();
+                currentTimeLabel.setText(String.format("%02d:%02d:%02d", (int)timeSlider.getValue() / 3600, (int)timeSlider.getValue() / 60 % 60, (int)timeSlider.getValue() % 60));
+                mediaPlayer.seek(Duration.seconds(timeSlider.getValue()));
+                isSeeking.set(false);
+            }
+        });
+
+        // update the current time label & time slider when the media is playing
+        mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
+            if (!isSeeking.get()) {
+                timeSlider.setValue(newValue.toSeconds());
+                currentTimeLabel.setText(String.format("%02d:%02d:%02d", (int) newValue.toHours(), (int) newValue.toMinutes() % 60, (int) newValue.toSeconds() % 60));
+            }
+        });
+
+        // volume slider
+        Slider volumeSlider = new Slider(0, 1, 1);
+        volumeSlider.getStyleClass().add(Styles.SMALL);
+        volumeSlider.setSkin(new ProgressSliderSkin(volumeSlider));
+        volumeSlider.setMinWidth(100);
+
+        mediaPlayer.volumeProperty().bind(volumeSlider.valueProperty());
+
+        // muteButton button
+        ToggleButton muteButton = new ToggleButton(null, new FontIcon(Material.VOLUME_UP));
+        muteButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                muteButton.setGraphic(new FontIcon(Material.VOLUME_OFF));
+                mediaPlayer.setMute(true);
+            } else {
+                muteButton.setGraphic(new FontIcon(Material.VOLUME_UP));
+                mediaPlayer.setMute(false);
+            }
+        });
+
+        // disable muteButton button if volume is 0 & vice versa
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() == 0) {
+                muteButton.setGraphic(new FontIcon(Material.VOLUME_OFF));
+                muteButton.setSelected(true);
+                muteButton.setDisable(true);
+            } else {
+                muteButton.setGraphic(new FontIcon(Material.VOLUME_UP));
+                muteButton.setSelected(false);
+                muteButton.setDisable(false);
+            }
+        });
+
+        /*
+        reciterComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                Media newMedia = Query.loadMedia(newValue.getId(), surahComboBox.getSelectionModel().getSelectedItem().getId());
+                if(newMedia != null) {
+                    mediaPlayer.stop();
+                    playPauseButton.setSelected(false);
+                    mediaPlayer = new MediaPlayer(newMedia);
                 }
             }
-            if (lf.isEmpty()) {
-                var alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Exception Dialog");
-                alert.setHeaderText("No files found");
-                alert.setContentText("you have to download the audio files first");
-
-                alert.initOwner(root.getScene().getWindow());
-                alert.showAndWait();
-
-                return;
-            }
-            int i = 0;
-            ArrayList<MediaPlayer> players = new ArrayList<>();
-            Collections.sort(lf);
-            while (i < lf.size()) {
-                MediaPlayer mp = new MediaPlayer(new Media(lf.get(i).toURI().toString()));
-                players.add(mp);
-                i++;
-            }
-            MediaControl mediaControl = new MediaControl(players);
-            if (hB.getChildren().size() < 5)
-                hB.getChildren().add(mediaControl);
-
-            else {
-                hB.getChildren().remove(4);
-                hB.getChildren().add(mediaControl);
-            }
         });
 
+        surahComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                Media newMedia = Query.loadMedia(reciterComboBox.getSelectionModel().getSelectedItem().getId(), newValue.getId());
+                if(newMedia != null) {
+                    mediaPlayer.stop();
+                    playPauseButton.setSelected(false);
+                    mediaPlayer = new MediaPlayer(newMedia);
+                }
+            }
+        });
+        */
+
+        // download manager button
         Button downloadManager = new Button( "ادارة التحميلات", new FontIcon(Material.CLOUD_DOWNLOAD));
-        downloadManager.setOnAction(e -> {
-            try {
-                DownloadAudio.display();
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        downloadManager.setOnAction(e -> DownloadAudio.display());
 
-        hB.getChildren().addAll(start, reciterComboBox, surahComboBox, downloadManager);
-        hB.setAlignment(Pos.CENTER);
-        root.setBottom(hB);
-        // Download audio Stage
+        audioPlayer.getChildren().addAll(reciterComboBox, surahComboBox, playPauseButton, currentTimeLabel, timeSlider, totalTimeLabel, downloadManager, muteButton, volumeSlider);
+
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
-            if (e.getCode() == KeyCode.LEFT) {
-                try {
-                    setCurrentPage(pageNumber.get() + 1);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-            } else if (e.getCode() == KeyCode.RIGHT) {
-                try {
-                    setCurrentPage(pageNumber.get() - 1);
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
+            if (e.getCode() == KeyCode.LEFT) setCurrentPage(pageNumber.get() + 1);
+            else if (e.getCode() == KeyCode.RIGHT) setCurrentPage(pageNumber.get() - 1);
         });
         primaryStage.setTitle("JQuran");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    public void setCurrentPage(int newPageNumber) throws Exception {
+    public void setCurrentPage(int newPageNumber) {
         List<List<String>> lines = getFormattedPage(newPageNumber);
         if (lines == null) return;
         Font pageFont = Query.loadPageFont(newPageNumber, fontVersion, fontSize);
@@ -355,7 +382,7 @@ public class MainWindow extends Application {
         }
     }
 
-    public List<List<String>> getFormattedPage(int newPageNumber) throws Exception {
+    public List<List<String>> getFormattedPage(int newPageNumber) {
         List<List<String>> lines = new ArrayList<>();
         for (int i = 0; i < 15; i++)
             lines.add(new ArrayList<>());
@@ -371,20 +398,21 @@ public class MainWindow extends Application {
             int currentVerse = Integer.parseInt(verseKey[1]);
 
             String chapterCode = "\\"; // (سورة) Surah unicode in QCF_BSML
-            chapterCode += Query.loadSurahNameCode(verseChapter); // The surah name unicode in QCF_BSML
 
             if (currentVerse == 1) {
                 if (newPageNumber == 1 || newPageNumber == 187) {
-                    lines.get(curLineNum).add(chapterCode);
+                    lines.get(curLineNum).add(chapterCode + Query.loadSurahNameCode(verseChapter)); // The surah name unicode in QCF_BSML
                 } else if (verseWords.getFirst().getLine_number() == 2) {
                     lines.get(curLineNum).add("ó");
                 } else {
-                    lines.get(curLineNum).add(chapterCode);
+                    lines.get(curLineNum).add(chapterCode + Query.loadSurahNameCode(verseChapter));
                     lines.get(curLineNum + 1).add("ó");
                 }
             }
             // handle if the last line of the page at line 14 -> add box with the next surah name (not completed, yet)
-
+            else if(currentVerse == chapters.get(verseChapter - 1).getVerses_count() && verseWords.getLast().getLine_number() == 14) {
+                lines.get(14).add(chapterCode + Query.loadSurahNameCode(verseChapter + 1));
+            }
 
             // Add words to the curLine
             for (Word verseWord : verseWords) {
@@ -392,12 +420,7 @@ public class MainWindow extends Application {
                 lines.get(curLineNum - 1).add(verseWord.getCode(fontVersion));
             }
         }
-
         pageNumber.set(newPageNumber);
         return lines;
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }

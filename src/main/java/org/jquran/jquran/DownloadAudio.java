@@ -1,7 +1,6 @@
 package org.jquran.jquran;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -44,49 +43,36 @@ public final class DownloadAudio {
 
 
         List<Chapter> quranChapters = Query.loadChapters();
-        List<Reciter> reciters = Query.loadReciters();
+        ListView<Chapter> chaptersListView = new ListView<>();
+        chaptersListView.getItems().addAll(quranChapters);
+        chaptersListView.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
-        ListView<String> surahListView = new ListView<>();
-        surahListView.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
-        ListView<String> reciterListView = new ListView<>();
+        List<Reciter> reciters = Query.loadReciters();
+        ListView<Reciter> reciterListView = new ListView<>();
+        reciterListView.getItems().addAll(reciters);
         reciterListView.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
 
-        for (Reciter reciter : reciters) {
-            /// reciters name
-            String reciterSName = reciter.getTranslated_name().getName();
-            /// reciters style
-            String reciterStyle = reciter.getStyle();
-            if (reciterStyle == null)
-                reciterListView.getItems().add(reciterSName);
-            else reciterListView.getItems().add(reciterSName + ' ' + reciterStyle);
-        }
-
-        for (Chapter quranChapter : quranChapters) {
-            surahListView.getItems().add(quranChapter.getName_arabic());
-        }
 
         Button audioDownloadButton = new Button("تحميل");
 
-        audioDownloadButton.getStyleClass().addAll(
-                Styles.BUTTON_OUTLINED, Styles.SUCCESS);
+        audioDownloadButton.getStyleClass().addAll(Styles.BUTTON_OUTLINED, Styles.SUCCESS);
         audioDownloadButton.setMnemonicParsing(true);
 
         Button cancel = new Button("الغاء");
-        cancel.getStyleClass().addAll(
-                Styles.BUTTON_OUTLINED, Styles.DANGER);
-        cancel.setContentDisplay(ContentDisplay.RIGHT);
+        cancel.getStyleClass().addAll(Styles.BUTTON_OUTLINED, Styles.DANGER);
         cancel.setMnemonicParsing(true);
 
         HBox hBox = new HBox(30);
+        hBox.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        hBox.setAlignment(Pos.CENTER);
         hBox.setPadding(new Insets(10));
         hBox.getChildren().addAll(audioDownloadButton, cancel);
-        hBox.setAlignment(Pos.CENTER);
 
         audioDownloadButton.setOnAction(e -> {
             try {
                 ExecutorService pool = Executors.newFixedThreadPool(10);
                 int reciterId = reciterListView.getSelectionModel().getSelectedIndex() + 1;
-                int surahId = surahListView.getSelectionModel().getSelectedIndex() + 1;
+                int surahId = chaptersListView.getSelectionModel().getSelectedIndex() + 1;
                 URL url = URI.create("https://api.quran.com/api/v4/recitations/" + reciterId + "/by_chapter/" + surahId
                         + "?per_page=all").toURL();
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -130,7 +116,7 @@ public final class DownloadAudio {
             }
         });
         VBox vBox = new VBox();
-        vBox.getChildren().addAll(reciterListView, surahListView, hBox);
+        vBox.getChildren().addAll(reciterListView, chaptersListView, hBox);
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(vBox);
         downloadStage.setTitle("اختر السورة والقارئ");

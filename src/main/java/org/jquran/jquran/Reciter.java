@@ -36,4 +36,10 @@ public class Reciter {
     public void setTranslated_name(TranslatedName translated_name) {
         this.translated_name = translated_name;
     }
+
+    @Override
+    public String toString() {
+        if(getStyle() == null) return getTranslated_name().getName();
+        return getTranslated_name().getName() + ' ' + getStyle();
+    }
 }
