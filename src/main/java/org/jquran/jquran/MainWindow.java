@@ -3,12 +3,12 @@ package org.jquran.jquran;
 import atlantafx.base.controls.CustomTextField;
 import atlantafx.base.controls.ProgressSliderSkin;
 import atlantafx.base.controls.ToggleSwitch;
-import atlantafx.base.theme.CupertinoDark;
-import atlantafx.base.theme.CupertinoLight;
-import atlantafx.base.theme.Styles;
+import atlantafx.base.theme.*;
 import javafx.application.Application;
-import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.*;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -38,10 +38,10 @@ public class MainWindow extends Application {
     private static final int fontSize = 33;
     private static int fontVersion = 1;
     private static TextFlow pageTextFlow;
-    private static List<Chapter> chapters;
-    private static ListView<Chapter> chaptersList;
-
-    private static final SimpleIntegerProperty pageNumber = new SimpleIntegerProperty(76);
+    private static Page currentPage;
+    private static List<Chapter> chaptersList;
+    private static ListView<Chapter> chaptersListView;
+    private static int pageNumber = 1;
 
     // MediaPlayer components
     private static MediaPlayer mediaPlayer;
@@ -108,14 +108,14 @@ public class MainWindow extends Application {
         // font version listener
         v1.selectedProperty().addListener((observable, oldValue, newValue) -> {
             fontVersion = 1;
-            setCurrentPage(pageNumber.get());
+            setCurrentPage(pageNumber);
             v2.setDisable(false);
             v1.setDisable(true);
         });
 
         v2.selectedProperty().addListener((observable, oldValue, newValue) -> {
             fontVersion = 2;
-            setCurrentPage(pageNumber.get());
+            setCurrentPage(pageNumber);
             v1.setDisable(false);
             v2.setDisable(true);
         });
@@ -133,24 +133,57 @@ public class MainWindow extends Application {
         accordionContainer.setPadding(new Insets(10));
         root.setLeft(accordionContainer);
 
-        // search field to search for chapters
+        // search field to search for chaptersList
         CustomTextField searchField = new CustomTextField();
         searchField.setPromptText("اسم السورة");
         searchField.setLeft(new FontIcon(Material.SEARCH));
         chaptersPane.getChildren().add(searchField);
 
-        // load chapters name & add it to the listview
-        chapters = Query.loadChapters();
+        // load chaptersList name & add it to the listview
+        chaptersList = Query.loadChapters();
 
-        chaptersList = new ListView<>();
-        chaptersList.getItems().addAll(chapters);
-        chaptersList.prefHeightProperty().bind(chaptersPane.heightProperty());
-        chaptersPane.getChildren().add(chaptersList);
-        chaptersList.getSelectionModel().select(pageNumber.get() - 1);
-        chaptersList.setOnMouseClicked(e -> setCurrentPage(chaptersList.getSelectionModel().getSelectedItem().getPages().getFirst()));
+        chaptersListView = new ListView<>();
+        chaptersListView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE);
+        chaptersListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        chaptersListView.getStyleClass().add("chaptersListView");
+        chaptersListView.prefHeightProperty().bind(chaptersPane.heightProperty());
 
-        // text filed listener to handel search queries
-        searchField.textProperty().addListener((observable, oldText, newText) -> chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList())));
+        chaptersListView.getItems().addAll(chaptersList);
+        chaptersPane.getChildren().add(chaptersListView);
+        chaptersListView.getSelectionModel().select(pageNumber - 1);
+
+        // set the current page to the first page of the selected surah
+        chaptersListView.setOnMouseClicked(e -> setCurrentPage(chaptersListView.getSelectionModel().getSelectedItem().getPages().getFirst()));
+
+        ObjectProperty<Chapter> selectedChapter = new SimpleObjectProperty<>();
+        // search field listener
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Save selection before filtering
+            Chapter currentSelection = chaptersListView.getSelectionModel().getSelectedItem();
+            if (currentSelection != null) selectedChapter.set(currentSelection);
+
+            // Filter the chaptersList
+            chaptersListView.getItems().setAll(chaptersList.stream().filter(chapter -> chapter.getName_arabic().contains(newValue) || String.valueOf(chapter.getId()).contains(newValue)).collect(Collectors.toList()));
+
+            // Restore selection if still in filtered list
+            if (selectedChapter.get() != null && chaptersListView.getItems().contains(selectedChapter.get()))
+                chaptersListView.getSelectionModel().select(selectedChapter.get());
+            else
+                chaptersListView.getSelectionModel().clearSelection();
+
+            //show button to clear the search field if it's not empty and hide it if it's empty, and clear the search field when click on it.
+            if (newValue.isEmpty()) {
+                searchField.setRight(null);
+                chaptersListView.getSelectionModel().select(selectedChapter.get());
+            }
+            else {
+                Button clearButton = new Button(null, new FontIcon(Material.CLOSE));
+                clearButton.cursorProperty().set(Cursor.HAND);
+                clearButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE, Styles.SMALL, Styles.DANGER);
+                searchField.setRight(clearButton);
+                clearButton.setOnAction(e -> searchField.clear());
+            }
+        });
 
         // Set Mushaf layout
         pageTextFlow = new TextFlow();
@@ -163,7 +196,6 @@ public class MainWindow extends Application {
 
         // add the scroll pane to the center of the root
         root.setCenter(scrollPane);
-        setCurrentPage(pageNumber.get());
 
         // audio player container to hold the audio player components
         HBox audioPlayer = new HBox();
@@ -176,32 +208,38 @@ public class MainWindow extends Application {
         // load reciters & add it to the reciter combo box
         List<Reciter> reciters = Query.loadReciters();
         reciterComboBox = new ComboBox<>();
+        reciterComboBox.getStyleClass().add("comboBox");
         reciterComboBox.getItems().addAll(reciters);
         reciterComboBox.getSelectionModel().select(6); // default reciter Mishari Rashid
         reciterComboBox.setPrefWidth(250);
 
-        // add chapters to the surah combo box
+        // add chaptersList to the surah combo box
         surahComboBox = new ComboBox<>();
-        surahComboBox.getItems().addAll(chapters);
+        surahComboBox.getStyleClass().add("comboBox");
+        surahComboBox.getItems().addAll(chaptersList);
         surahComboBox.setPrefWidth(130);
 
         // time labels, play & pause button & muteButton button
         currentTimeLabel = new Label("00:00:00");
         totalTimeLabel = new Label("00:00:00");
         playPauseButton = new ToggleButton(null, new FontIcon(Material.PLAY_ARROW));
+        playPauseButton.cursorProperty().set(Cursor.HAND);
         muteButton = new ToggleButton(null, new FontIcon(Material.VOLUME_UP));
         muteButton.getStyleClass().add(Styles.BUTTON_CIRCLE);
+        muteButton.cursorProperty().set(Cursor.HAND);
 
         // time slider to seek the audio
         timeSlider = new Slider();
         timeSlider.setSkin(new ProgressSliderSkin(timeSlider));
         timeSlider.getStyleClass().add(Styles.SMALL);
+        timeSlider.cursorProperty().set(Cursor.HAND);
         timeSlider.setMinWidth(300);
 
         // volume slider to control the volume
         volumeSlider = new Slider(0, 1, 1);
         volumeSlider.getStyleClass().add(Styles.SMALL);
         volumeSlider.setSkin(new ProgressSliderSkin(volumeSlider));
+        volumeSlider.cursorProperty().set(Cursor.HAND);
         volumeSlider.setMinWidth(100);
 
         // volume slider listener to change the mute button icon
@@ -222,6 +260,9 @@ public class MainWindow extends Application {
             if (newValue != null) {
                 Media newMedia = Query.loadMedia(newValue.getId(), surahComboBox.getSelectionModel().getSelectedItem().getId());
                 setupMediaPlayer(newMedia);
+                chaptersListView.getSelectionModel().clearSelection();
+                chaptersListView.getSelectionModel().select(surahComboBox.getSelectionModel().getSelectedItem().getId() - 1);
+
             }
         });
 
@@ -229,11 +270,14 @@ public class MainWindow extends Application {
             if (newValue != null) {
                 Media newMedia = Query.loadMedia(reciterComboBox.getSelectionModel().getSelectedItem().getId(), newValue.getId());
                 setupMediaPlayer(newMedia);
+                chaptersListView.getSelectionModel().clearSelection();
+                chaptersListView.getSelectionModel().select(newValue.getId() - 1);
             }
         });
 
         // download manager button
         Button downloadManager = new Button( "ادارة التحميلات", new FontIcon(Material.CLOUD_DOWNLOAD));
+        downloadManager.cursorProperty().set(Cursor.HAND);
         downloadManager.setOnAction(e -> DownloadAudio.display());
 
         // set the default surah & reciter
@@ -246,8 +290,21 @@ public class MainWindow extends Application {
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
 
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
-            if (e.getCode() == KeyCode.LEFT) setCurrentPage(pageNumber.get() + 1);
-            else if (e.getCode() == KeyCode.RIGHT) setCurrentPage(pageNumber.get() - 1);
+            // play & pause the media when the user press the space bar
+            if (e.getCode() == KeyCode.SPACE) {
+                playPauseButton.setSelected(!playPauseButton.isSelected());
+                playPauseButton.fire();
+            }
+
+            // change the current page to the next or previous page when the user press the left or right arrow keys
+            if(e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.RIGHT) {
+                if (e.getCode() == KeyCode.LEFT) setCurrentPage(pageNumber + 1);
+                else setCurrentPage(pageNumber - 1);
+
+                // set the current page to the first page of the selected surah
+                chaptersListView.getSelectionModel().clearSelection();
+                chaptersListView.getSelectionModel().select(chaptersList.get(currentPage.getVerses().getFirst().getChapter_id() - 1));
+            }
         });
 
         primaryStage.setTitle("JQuran");
@@ -406,8 +463,8 @@ public class MainWindow extends Application {
                     lines.get(curLineNum + 1).add("ó");
                 }
             }
-            // handle if the last line of the page at line 14 -> add box with the next surah name (not completed, yet)
-            else if(currentVerse == chapters.get(verseChapter - 1).getVerses_count() && verseWords.getLast().getLine_number() == 14) {
+            // handle if the last line of the page at line 14 -> add box with the next surah name
+            else if(currentVerse == chaptersList.get(verseChapter - 1).getVerses_count() && verseWords.getLast().getLine_number() == 14) {
                 lines.get(14).add(chapterCode + Query.loadSurahNameCode(verseChapter + 1));
             }
 
@@ -417,7 +474,8 @@ public class MainWindow extends Application {
                 lines.get(curLineNum - 1).add(verseWord.getCode(fontVersion));
             }
         }
-        pageNumber.set(newPageNumber);
+        currentPage = page;
+        pageNumber = newPageNumber;
         return lines;
     }
 }

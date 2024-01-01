@@ -3,7 +3,18 @@
 /*Secondary color : #44a3aa*/
 
 #verse:hover{
-    -fx-fill: #22cbd8;
+    -fx-fill: -color-accent-4;
     -fx-cursor: HAND;
-    -fx-background-color: rgba(32, 37, 37, 0.4);
+}
+
+.chaptersListView .cell:hover,
+.chaptersListView .cell:selected {
+    -fx-background-color: -color-accent-muted;
+    -fx-background-radius: 10px, 8px;
+    -fx-background-insets: 0, 3px;
+    -fx-cursor: HAND;
+}
+.comboBox,
+.comboBox .cell:hover{
+    -fx-cursor: HAND;
 }
