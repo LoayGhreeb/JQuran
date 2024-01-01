@@ -153,7 +153,6 @@ public class MainWindow extends Application {
         searchField.textProperty().addListener((observable, oldText, newText) -> chaptersList.getItems().setAll(chapters.stream().filter(chapter -> chapter.getName_arabic().contains(newText) || String.valueOf(chapter.getId()).contains(newText)).collect(Collectors.toList())));
 
         // Set Mushaf layout
-        BorderPane mushafLayout = new BorderPane();
         pageTextFlow = new TextFlow();
         pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         pageTextFlow.setTextAlignment(TextAlignment.CENTER);
@@ -162,23 +161,9 @@ public class MainWindow extends Application {
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        mushafLayout.setCenter(scrollPane);
-        root.setCenter(mushafLayout);
+        // add the scroll pane to the center of the root
+        root.setCenter(scrollPane);
         setCurrentPage(pageNumber.get());
-
-        // next & previous page buttons
-        Button nextButton = new Button(null,new FontIcon(Material.ARROW_LEFT));
-        nextButton.setOnAction(e -> setCurrentPage(pageNumber.get() + 1));
-
-        Button prevButton = new Button(null, new FontIcon(Material.ARROW_RIGHT));
-        prevButton.setOnAction(e -> setCurrentPage(pageNumber.get() - 1));
-
-        // navigation container to hold the next & previous page buttons
-        HBox navigationContainer = new HBox(10);
-        navigationContainer.setPadding(new Insets(10));
-        navigationContainer.setAlignment(Pos.CENTER);
-        navigationContainer.getChildren().addAll(prevButton, nextButton);
-        mushafLayout.setBottom(navigationContainer);
 
         // audio player container to hold the audio player components
         HBox audioPlayer = new HBox();
@@ -186,7 +171,7 @@ public class MainWindow extends Application {
         audioPlayer.setSpacing(20);
         audioPlayer.setAlignment(Pos.CENTER);
         audioPlayer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
-        root.setBottom(audioPlayer);
+        root.setBottom(new VBox(new Separator(Orientation.HORIZONTAL), audioPlayer));
 
         // load reciters & add it to the reciter combo box
         List<Reciter> reciters = Query.loadReciters();
