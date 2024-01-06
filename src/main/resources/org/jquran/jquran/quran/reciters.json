@@ -1,110 +1,106 @@
 [
     {
-        "id": 1,
-        "reciter_name": "AbdulBaset AbdulSamad",
-        "style": "Mujawwad",
-        "translated_name": {
-            "name": "عبد الباسط عبد الصمد",
-            "language_name": "arabic"
-        }
-    },
-    {
-        "id": 2,
-        "reciter_name": "AbdulBaset AbdulSamad",
-        "style": "Murattal",
-        "translated_name": {
-            "name": "عبد الباسط عبد الصمد",
-            "language_name": "arabic"
-        }
-    },
-    {
         "id": 3,
-        "reciter_name": "Abdur-Rahman as-Sudais",
-        "style": null,
-        "translated_name": {
-            "name": "عبدالرحمن السديس",
-            "language_name": "arabic"
-        }
+        "reciter_id": 2,
+        "name_en": "Abdur-Rahman as-Sudais",
+        "name_ar": "عبدالرحمن السديس",
+        "style": "Murattal",
+        "ar_style": "مرتل"
     },
     {
-        "id": 4,
-        "reciter_name": "Abu Bakr al-Shatri",
-        "style": null,
-        "translated_name": {
-            "name": "أبو بكر الشاطرى",
-            "language_name": "arabic"
-        }
-    },
-    {
-        "id": 5,
-        "reciter_name": "Hani ar-Rifai",
-        "style": null,
-        "translated_name": {
-            "name": "هاني الرفاعي",
-            "language_name": "arabic"
-        }
+        "id": 161,
+        "reciter_id": 11,
+        "name_en": "Khalifah Al Tunaiji",
+        "name_ar": "خليفة الطنيجي",
+        "style": "Murattal",
+        "ar_style": "مرتل"
     },
     {
         "id": 6,
-        "reciter_name": "Mahmoud Khalil Al-Husary",
-        "style": null,
-        "translated_name": {
-            "name": "محمود خليل الحصري",
-            "language_name": "arabic"
-        }
-    },
-    {
-        "id": 7,
-        "reciter_name": "Mishari Rashid al-`Afasy",
-        "style": null,
-        "translated_name": {
-            "name": "مشاري راشد العفاسي",
-            "language_name": "arabic"
-        }
-    },
-    {
-        "id": 8,
-        "reciter_name": "Mohamed Siddiq al-Minshawi",
-        "style": "Mujawwad",
-        "translated_name": {
-            "name": "محمد صديق المنشاوي",
-            "language_name": "arabic"
-        }
-    },
-    {
-        "id": 9,
-        "reciter_name": "Mohamed Siddiq al-Minshawi",
+        "reciter_id": 5,
+        "name_en": "Mahmoud Khalil Al-Husary",
+        "name_ar": "محمود خليل الحصري",
         "style": "Murattal",
-        "translated_name": {
-            "name": "محمد صديق المنشاوي",
-            "language_name": "arabic"
-        }
+        "ar_style": "مرتل"
     },
     {
         "id": 10,
-        "reciter_name": "Sa`ud ash-Shuraym",
-        "style": null,
-        "translated_name": {
-            "name": "سعود الشريم",
-            "language_name": "arabic"
-        }
+        "reciter_id": 8,
+        "name_en": "Sa'ud ash-Shuraim",
+        "name_ar": "سعود الشريم",
+        "style": "Murattal",
+        "ar_style": "مرتل"
     },
     {
-        "id": 11,
-        "reciter_name": "Mohamed al-Tablawi",
-        "style": null,
-        "translated_name": {
-            "name": "محمد الطبلاوي",
-            "language_name": "arabic"
-        }
+        "id": 2,
+        "reciter_id": 1,
+        "name_en": "AbdulBaset AbdulSamad",
+        "name_ar": "عبد الباسط عبد الصمد",
+        "style": "Murattal",
+        "ar_style": "مرتل"
+    },
+    {
+        "id": 9,
+        "reciter_id": 7,
+        "name_en": "Mohamed Siddiq al-Minshawi",
+        "name_ar": "محمد صديق المنشاوي",
+        "style": "Murattal",
+        "ar_style": "مرتل"
+    },
+    {
+        "id": 7,
+        "reciter_id": 6,
+        "name_en": "Mishari Rashid al-`Afasy",
+        "name_ar": "مشاري راشد العفاسي",
+        "style": "Murattal",
+        "ar_style": "مرتل"
+    },
+    {
+        "id": 4,
+        "reciter_id": 3,
+        "name_en": "Abu Bakr al-Shatri",
+        "name_ar": "أبو بكر الشاطرى",
+        "style": "Murattal",
+        "ar_style": "مرتل"
+    },
+    {
+        "id": 1,
+        "reciter_id": 1,
+        "name_en": "AbdulBaset AbdulSamad",
+        "name_ar": "عبد الباسط عبد الصمد",
+        "style": "Mujawwad",
+        "ar_style": "مجود"
+    },
+    {
+        "id": 5,
+        "reciter_id": 4,
+        "name_en": "Hani ar-Rifai",
+        "name_ar": "هاني الرفاعي",
+        "style": "Murattal",
+        "ar_style": "مرتل"
+    },
+    {
+        "id": 168,
+        "reciter_id": 7,
+        "name_en": "Mohamed Siddiq al-Minshawi",
+        "name_ar": "محمد صديق المنشاوي",
+        "style": "Kids repeat",
+        "ar_style": "تكرار للاطفال"
+    },
+    {
+        "id": 173,
+        "reciter_id": 6,
+        "name_en": "Mishari Rashid al-`Afasy",
+        "name_ar": "مشاري راشد العفاسي",
+        "style": "Murattal",
+        "ar_style": "مرتل"
     },
     {
         "id": 12,
-        "reciter_name": "Mahmoud Khalil Al-Husary",
+        "reciter_id": 5,
+        "name_en": "Mahmoud Khalil Al-Husary",
+        "name_ar": "محمود خليل الحصري",
         "style": "Muallim",
-        "translated_name": {
-            "name": "محمود خليل الحصري",
-            "language_name": "arabic"
-        }
+        "ar_style": "معلم"
     }
 ]

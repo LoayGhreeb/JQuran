@@ -1,34 +1,28 @@
 package org.jquran.jquran;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-
+import atlantafx.base.theme.Styles;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import atlantafx.base.theme.Styles;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-
-
 public final class DownloadAudio {
 
     private static final double PERCENTAGE = 0.6;
@@ -40,7 +34,6 @@ public final class DownloadAudio {
         double screenHeight = Screen.getPrimary().getBounds().getHeight();
         downloadStage.setWidth(screenWidth * PERCENTAGE);
         downloadStage.setHeight(screenHeight * PERCENTAGE);
-
 
         List<Chapter> quranChapters = Query.loadChapters();
         ListView<Chapter> chaptersListView = new ListView<>();
@@ -69,50 +62,45 @@ public final class DownloadAudio {
         hBox.getChildren().addAll(audioDownloadButton, cancel);
 
         audioDownloadButton.setOnAction(e -> {
+            //get reciter id and surah id
+            int recitationId = reciterListView.getSelectionModel().getSelectedItem().getId();
+            int surahId = chaptersListView.getSelectionModel().getSelectedItem().getId();
+
+            // get the details of the audio file that will be downloaded
+            String audioFileDetails = "https://api.qurancdn.com/api/qdc/audio/reciters/" + recitationId + "/audio_files?chapter=" + surahId + "&segments=true";
+            String outputFilePath = "src/main/resources/org/jquran/jquran/Quran_Audio/" + reciterListView.getSelectionModel().getSelectedItem().getId() + "/" + surahId + ".json";
             try {
-                ExecutorService pool = Executors.newFixedThreadPool(10);
-                int reciterId = reciterListView.getSelectionModel().getSelectedIndex() + 1;
-                int surahId = chaptersListView.getSelectionModel().getSelectedIndex() + 1;
-                URL url = URI.create("https://api.quran.com/api/v4/recitations/" + reciterId + "/by_chapter/" + surahId
-                        + "?per_page=all").toURL();
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.connect();
-                int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_OK) {
+                Path path = Paths.get(outputFilePath);
+                if (!Files.exists(path.getParent()))
+                    Files.createDirectories(path.getParent());
 
-                    cancel.setOnAction(e2 -> {
-                        try {
-                            pool.shutdown(); // Disable new tasks from being submitted
-                            if (!pool.awaitTermination(1, TimeUnit.SECONDS)) {
-                                pool.shutdownNow(); // Cancel currently executing tasks
-                                if (!pool.awaitTermination(1, TimeUnit.SECONDS)) {
-                                    System.out.println("The pool did not terminate");
-                                }
-                            }
-                        } catch (Exception exception) {
-                            System.out.println(exception.getMessage());
-                        }
-                    });
+                URL url = URI.create(audioFileDetails).toURL();
 
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                try (InputStream in = url.openStream()) {
+                    Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("File downloaded successfully to: " + path);
+
+                    // Parse the downloaded JSON to extract audio_url
                     ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode jsonNode = objectMapper.readTree(reader.readLine());
-                    for (int i = 0; i < jsonNode.get("audio_files").size(); i++) {
-                        String path = "src/main/resources/org/jquran/jquran/Quran_Audio/"
-                                + reciterListView.getSelectionModel().getSelectedItem() + "/";
-                        String downloadUrl = jsonNode.get("audio_files").get(i).get("url").toString().replace("\"", "");
-                        path = path + downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1);
-                        downloadUrl = "https://verses.quran.com/" + downloadUrl;
-                        System.out.println(path);
-                        pool.submit(new Downloader(downloadUrl, path));
+                    JsonNode rootNode = objectMapper.readTree(path.toFile());
+
+                    JsonNode audioFilesNode = rootNode.path("audio_files");
+                    JsonNode firstAudioFileNode = audioFilesNode.get(0);
+                    String audioUrl = firstAudioFileNode.path("audio_url").asText();
+                    System.out.println("Captured audio_url: " + audioUrl);
+
+                    // Download the audio file
+                    String outputAudioFilePath = "src/main/resources/org/jquran/jquran/Quran_Audio/" + reciterListView.getSelectionModel().getSelectedItem().getId() + "/" + surahId + ".mp3";
+                    Path audioPath = Paths.get(outputAudioFilePath);
+
+                    URL audioUrlObject = URI.create(audioUrl).toURL();
+                    try (InputStream in2 = audioUrlObject.openStream()) {
+                        Files.copy(in2, audioPath, StandardCopyOption.REPLACE_EXISTING);
+                        System.out.println("File downloaded successfully to: " + audioPath);
                     }
-                    reader.close();
-                } else {
-                    System.out.println(responseCode);
                 }
-            } catch (Exception exception) {
-                System.out.println(exception.getMessage());
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
         });
         VBox vBox = new VBox();

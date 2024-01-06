@@ -5,6 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.scene.control.Alert;
 import javafx.scene.media.Media;
 import javafx.scene.text.Font;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.List;
 
@@ -27,6 +32,7 @@ public final class Query {
 
     public static Font loadPageFont(int pageNum, int fontVersion, int fontSize) {
         if (pageNum <= 0 || pageNum > 604 || fontVersion < 1 || fontVersion > 2) return null;
+//        return Font.loadFont(Query.class.getResourceAsStream("fonts/v4/QCF4" + String.format("%03d", pageNum) + "_COLOR-Regular" + ".ttf"), fontSize);
         return Font.loadFont(Query.class.getResourceAsStream("fonts/v" + fontVersion + "/p" + pageNum + ".ttf"), fontSize);
     }
 
@@ -74,10 +80,12 @@ public final class Query {
          return null;
     }
 
-    public static Media loadMedia(int reciterId, int chapterId) {
-        try {
-            return new Media(Query.class.getResource("Quran_Audio/" + loadReciters().get(reciterId - 1).getTranslated_name().getName() + "/" + chapterId + ".mp3").toURI().toString());
-        }catch (Exception e){
+    public static Media loadMedia(int recitationId, int chapterId) {
+        String filePath = "src/main/resources/org/jquran/jquran/Quran_Audio/" + recitationId + "/" + chapterId + ".mp3";
+        Path path = Paths.get(filePath);
+        if (Files.exists(path.getParent()) && Files.exists(path))
+            return new Media(new File(filePath).toURI().toString());
+        else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Exception Dialog");
             alert.setHeaderText("No files found");

@@ -262,7 +262,6 @@ public class MainWindow extends Application {
                 setupMediaPlayer(newMedia);
                 chaptersListView.getSelectionModel().clearSelection();
                 chaptersListView.getSelectionModel().select(surahComboBox.getSelectionModel().getSelectedItem().getId() - 1);
-
             }
         });
 
@@ -336,6 +335,7 @@ public class MainWindow extends Application {
             mediaPlayer.setOnReady(() -> {
                 currentTimeLabel.setText("00:00:00");
                 totalTimeLabel.setText(String.format("%02d:%02d:%02d", (int)mediaPlayer.getTotalDuration().toHours(), (int)mediaPlayer.getTotalDuration().toMinutes() % 60, (int)mediaPlayer.getTotalDuration().toSeconds() % 60));
+                timeSlider.setValue(0);
                 timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
                 playPauseButton.setSelected(false);
             });
