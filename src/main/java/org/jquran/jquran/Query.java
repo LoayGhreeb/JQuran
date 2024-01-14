@@ -2,6 +2,7 @@ package org.jquran.jquran;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.Alert;
 import javafx.scene.media.Media;
 import javafx.scene.text.Font;
@@ -85,13 +86,6 @@ public final class Query {
         Path path = Paths.get(filePath);
         if (Files.exists(path.getParent()) && Files.exists(path))
             return new Media(new File(filePath).toURI().toString());
-        else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Exception Dialog");
-            alert.setHeaderText("No files found");
-            alert.setContentText("you have to download the audio files first");
-            alert.showAndWait();
-        }
         return null;
     }
 }

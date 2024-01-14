@@ -39,6 +39,7 @@ public class MainWindow extends Application {
     private static int fontVersion = 1;
     private static TextFlow pageTextFlow;
     private static Page currentPage;
+    private static Chapter selectedChapter;
     private static List<Chapter> chaptersList;
     private static ListView<Chapter> chaptersListView;
     private static int pageNumber = 1;
@@ -145,7 +146,7 @@ public class MainWindow extends Application {
         chaptersListView = new ListView<>();
         chaptersListView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE);
         chaptersListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        chaptersListView.getStyleClass().add("chaptersListView");
+        chaptersListView.getStyleClass().add("listView");
         chaptersListView.prefHeightProperty().bind(chaptersPane.heightProperty());
 
         chaptersListView.getItems().addAll(chaptersList);
@@ -155,26 +156,25 @@ public class MainWindow extends Application {
         // set the current page to the first page of the selected surah
         chaptersListView.setOnMouseClicked(e -> setCurrentPage(chaptersListView.getSelectionModel().getSelectedItem().getPages().getFirst()));
 
-        ObjectProperty<Chapter> selectedChapter = new SimpleObjectProperty<>();
         // search field listener
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             // Save selection before filtering
             Chapter currentSelection = chaptersListView.getSelectionModel().getSelectedItem();
-            if (currentSelection != null) selectedChapter.set(currentSelection);
+            if (currentSelection != null) selectedChapter = currentSelection;
 
             // Filter the chaptersList
             chaptersListView.getItems().setAll(chaptersList.stream().filter(chapter -> chapter.getName_arabic().contains(newValue) || String.valueOf(chapter.getId()).contains(newValue)).collect(Collectors.toList()));
 
             // Restore selection if still in filtered list
-            if (selectedChapter.get() != null && chaptersListView.getItems().contains(selectedChapter.get()))
-                chaptersListView.getSelectionModel().select(selectedChapter.get());
+            if (selectedChapter != null && chaptersListView.getItems().contains(selectedChapter))
+                chaptersListView.getSelectionModel().select(selectedChapter);
             else
                 chaptersListView.getSelectionModel().clearSelection();
 
             //show button to clear the search field if it's not empty and hide it if it's empty, and clear the search field when click on it.
             if (newValue.isEmpty()) {
                 searchField.setRight(null);
-                chaptersListView.getSelectionModel().select(selectedChapter.get());
+                chaptersListView.getSelectionModel().select(selectedChapter);
             }
             else {
                 Button clearButton = new Button(null, new FontIcon(Material.CLOSE));
@@ -213,7 +213,7 @@ public class MainWindow extends Application {
         reciterComboBox.getSelectionModel().select(6); // default reciter Mishari Rashid
         reciterComboBox.setPrefWidth(250);
 
-        // add chaptersList to the surah combo box
+        // add chapters to the surah combo box
         surahComboBox = new ComboBox<>();
         surahComboBox.getStyleClass().add("comboBox");
         surahComboBox.getItems().addAll(chaptersList);
@@ -255,22 +255,39 @@ public class MainWindow extends Application {
             }
         });
 
-        // reciter & surah comboBox listeners
+        // reciter & surah comboBox listeners to stop the current media player
         reciterComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                Media newMedia = Query.loadMedia(newValue.getId(), surahComboBox.getSelectionModel().getSelectedItem().getId());
-                setupMediaPlayer(newMedia);
-                chaptersListView.getSelectionModel().clearSelection();
-                chaptersListView.getSelectionModel().select(surahComboBox.getSelectionModel().getSelectedItem().getId() - 1);
-            }
+            setupMediaPlayer(null);
         });
 
         surahComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                Media newMedia = Query.loadMedia(reciterComboBox.getSelectionModel().getSelectedItem().getId(), newValue.getId());
-                setupMediaPlayer(newMedia);
-                chaptersListView.getSelectionModel().clearSelection();
-                chaptersListView.getSelectionModel().select(newValue.getId() - 1);
+            setupMediaPlayer(null);
+        });
+
+        // play & pause button listener
+        playPauseButton.setOnAction(e-> {
+            // if the media player is null, load the media and play it
+            if (mediaPlayer == null) {
+                Media newMedia = Query.loadMedia(reciterComboBox.getSelectionModel().getSelectedItem().getId(), surahComboBox.getSelectionModel().getSelectedItem().getId());
+                if(setupMediaPlayer(newMedia)) {
+                    setCurrentPage(surahComboBox.getSelectionModel().getSelectedItem().getPages().getFirst());
+                    chaptersListView.getSelectionModel().clearSelection();
+                    chaptersListView.getSelectionModel().select(surahComboBox.getSelectionModel().getSelectedItem().getId() - 1);
+                }
+                else {
+                    showAlert();
+                    playPauseButton.setSelected(false);
+                }
+            }
+            // if the media player is not null, play or pause the media
+            else {
+                if (playPauseButton.isSelected()) {
+                    playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
+                    mediaPlayer.play();
+                } else {
+                    playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
+                    mediaPlayer.pause();
+                }
             }
         });
 
@@ -285,22 +302,25 @@ public class MainWindow extends Application {
         // add components to the audio player
         audioPlayer.getChildren().addAll(reciterComboBox, surahComboBox, playPauseButton, currentTimeLabel, timeSlider, totalTimeLabel, downloadManager, muteButton, volumeSlider);
 
+        // set the current page to the default page at the start
+        setCurrentPage(pageNumber);
+
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles/styles.css").toExternalForm());
 
+        // add keyboard shortcuts
         scene.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent e) -> {
             // play & pause the media when the user press the space bar
             if (e.getCode() == KeyCode.SPACE) {
-                playPauseButton.setSelected(!playPauseButton.isSelected());
                 playPauseButton.fire();
             }
-
             // change the current page to the next or previous page when the user press the left or right arrow keys
             if(e.getCode() == KeyCode.LEFT || e.getCode() == KeyCode.RIGHT) {
+                // set the current page to the first page of the selected surah
                 if (e.getCode() == KeyCode.LEFT) setCurrentPage(pageNumber + 1);
                 else setCurrentPage(pageNumber - 1);
 
-                // set the current page to the first page of the selected surah
+                // update selected chapter in the chapters list view
                 chaptersListView.getSelectionModel().clearSelection();
                 chaptersListView.getSelectionModel().select(chaptersList.get(currentPage.getVerses().getFirst().getChapter_id() - 1));
             }
@@ -319,42 +339,50 @@ public class MainWindow extends Application {
         primaryStage.show();
     }
 
-    private void setupMediaPlayer(Media newMedia) {
-        // check if the media is not found
-        if(newMedia != null) {
-            if(mediaPlayer != null) {
-                mediaPlayer.stop();
-                mediaPlayer.volumeProperty().unbind();
-                mediaPlayer.dispose();
-            }
-            // set the current page to the first page of the surah, create a new media player
-            setCurrentPage(surahComboBox.getSelectionModel().getSelectedItem().getPages().getFirst());
-            mediaPlayer = new MediaPlayer(newMedia);
+    // show an alert if the media is not found
+    private static void showAlert() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.getDialogPane().setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
+        alert.setTitle("خطأ");
+        alert.setHeaderText("لم يتم تحميل الملف الصوتي");
+        alert.setContentText("الرجاء التأكد من تحميل الملف الصوتي");
+        alert.showAndWait();
+    }
 
+    // setup the media player with the new media, return true if the media is found and false if not
+    private boolean setupMediaPlayer(Media newMedia) {
+        // stop the current media player, reset the time labels & time slider, set the play & pause button to pause
+        if(mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.volumeProperty().unbind();
+            mediaPlayer.dispose();
+            mediaPlayer = null;
+            currentTimeLabel.setText("00:00:00");
+            totalTimeLabel.setText("00:00:00");
+            timeSlider.setValue(0);
+            timeSlider.setMax(0);
+            playPauseButton.setSelected(false);
+            playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
+        }
+        // check if the media is not found
+        if (newMedia == null) return false;
+        // if the media is found, setup the media player
+        else {
+            mediaPlayer = new MediaPlayer(newMedia);
             // set the total time label to the media total duration, current time to 00:00:00, set the time slider max value to the total duration of the media, set the play & pause button to pause
             mediaPlayer.setOnReady(() -> {
                 currentTimeLabel.setText("00:00:00");
                 totalTimeLabel.setText(String.format("%02d:%02d:%02d", (int)mediaPlayer.getTotalDuration().toHours(), (int)mediaPlayer.getTotalDuration().toMinutes() % 60, (int)mediaPlayer.getTotalDuration().toSeconds() % 60));
                 timeSlider.setValue(0);
                 timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
-                playPauseButton.setSelected(false);
+                playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
+                mediaPlayer.play();
             });
 
             // set the play & pause button to pause when the media is finished and don't dispose the media player to be able to play the media again
             mediaPlayer.setOnEndOfMedia(() -> {
                 mediaPlayer.stop();
                 playPauseButton.setSelected(false);
-            });
-
-            // play & pause button listener
-            playPauseButton.selectedProperty().addListener((observableVal, oldVal, newVal) -> {
-                if (newVal) {
-                    playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
-                    mediaPlayer.play();
-                } else {
-                    playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
-                    mediaPlayer.pause();
-                }
             });
 
             // seek to the new time when the user drag the time slider or click on the time slider
@@ -397,8 +425,10 @@ public class MainWindow extends Application {
                 }
             });
         }
+        return true;
     }
 
+    // set the current page to the new page number
     private void setCurrentPage(int newPageNumber) {
         List<List<String>> lines = getFormattedPage(newPageNumber);
         if (lines == null) return;

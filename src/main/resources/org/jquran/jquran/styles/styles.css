@@ -1,14 +1,10 @@
-/*Text font color : #e7e9ea*/
-/*Background color: #1f2125*/
-/*Secondary color : #44a3aa*/
-
 #verse:hover{
     -fx-fill: -color-accent-4;
     -fx-cursor: HAND;
 }
 
-.chaptersListView .cell:hover,
-.chaptersListView .cell:selected {
+.listView .cell:hover,
+.listView .cell:selected {
     -fx-background-color: -color-accent-muted;
     -fx-background-radius: 10px, 8px;
     -fx-background-insets: 0, 3px;
