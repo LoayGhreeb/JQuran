@@ -185,7 +185,6 @@ public class MainWindow extends Application {
 
         // Set Mushaf layout
         pageTextFlow = new TextFlow();
-        pageTextFlow.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         pageTextFlow.setTextAlignment(TextAlignment.CENTER);
         pageTextFlow.setMinWidth(500);
         ScrollPane scrollPane = new ScrollPane(pageTextFlow);
@@ -200,7 +199,6 @@ public class MainWindow extends Application {
         audioPlayer.setPadding(new Insets(20));
         audioPlayer.setSpacing(20);
         audioPlayer.setAlignment(Pos.CENTER);
-        audioPlayer.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         root.setBottom(new VBox(new Separator(Orientation.HORIZONTAL), audioPlayer));
 
         // load reciters & add it to the reciter combo box
@@ -254,13 +252,9 @@ public class MainWindow extends Application {
         });
 
         // reciter & surah comboBox listeners to stop the current media player
-        reciterComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            setupMediaPlayer(null);
-        });
+        reciterComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> setupMediaPlayer(null));
 
-        surahComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            setupMediaPlayer(null);
-        });
+        surahComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> setupMediaPlayer(null));
 
         // play & pause button listener
         playPauseButton.setOnAction(e-> {
@@ -279,16 +273,16 @@ public class MainWindow extends Application {
             }
             // if the media player is not null, play or pause the media
             else {
-                if (playPauseButton.isSelected()) {
-                    playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
-                    mediaPlayer.play();
-                } else {
-                    playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
-                    mediaPlayer.pause();
-                }
+                if (playPauseButton.isSelected()) mediaPlayer.play();
+                 else mediaPlayer.pause();
             }
         });
 
+        // play & pause button icon listener
+        playPauseButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue)  playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
+            else playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
+        });
         // download manager button
         Button downloadManager = new Button( "ادارة التحميلات", new FontIcon(Material.CLOUD_DOWNLOAD));
         downloadManager.cursorProperty().set(Cursor.HAND);
@@ -326,14 +320,12 @@ public class MainWindow extends Application {
 
         primaryStage.setTitle("JQuran");
         primaryStage.setScene(scene);
-
         // set the stage size to 90% of the screen size
         double screenWidth = Screen.getPrimary().getBounds().getWidth();
         double screenHeight = Screen.getPrimary().getBounds().getHeight();
 
         primaryStage.setWidth(screenWidth * PERCENTAGE);
         primaryStage.setHeight(screenHeight * PERCENTAGE);
-
         primaryStage.show();
     }
 
@@ -347,7 +339,7 @@ public class MainWindow extends Application {
         alert.showAndWait();
     }
 
-    // setup the media player with the new media, return true if the media is found and false if not
+    // set up the media player with the new media, return true if the media is found and false if not
     private boolean setupMediaPlayer(Media newMedia) {
         // stop the current media player, reset the time labels & time slider, set the play & pause button to pause
         if(mediaPlayer != null) {
@@ -360,7 +352,6 @@ public class MainWindow extends Application {
             timeSlider.setValue(0);
             timeSlider.setMax(0);
             playPauseButton.setSelected(false);
-            playPauseButton.setGraphic(new FontIcon(Material.PLAY_ARROW));
         }
         // check if the media is not found
         if (newMedia == null) return false;
@@ -373,7 +364,6 @@ public class MainWindow extends Application {
                 totalTimeLabel.setText(String.format("%02d:%02d:%02d", (int)mediaPlayer.getTotalDuration().toHours(), (int)mediaPlayer.getTotalDuration().toMinutes() % 60, (int)mediaPlayer.getTotalDuration().toSeconds() % 60));
                 timeSlider.setValue(0);
                 timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
-                playPauseButton.setGraphic(new FontIcon(Material.PAUSE));
                 mediaPlayer.play();
             });
 
@@ -464,6 +454,7 @@ public class MainWindow extends Application {
         }
     }
 
+    // format the page to be ready to be displayed
     private List<List<String>> getFormattedPage(int newPageNumber) {
         List<List<String>> lines = new ArrayList<>();
         for (int i = 0; i < 15; i++)
